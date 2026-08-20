@@ -101,7 +101,16 @@ priorytetach, etykietach, sekcjach i wykonaniu.
 
 - Przed modyfikacją znajdź dokładny projekt i zadanie w bieżącym stanie.
 - Nie opieraj zapisu wyłącznie na ID z dokumentacji.
-- Po zmianie pobierz obiekt ponownie i zweryfikuj rezultat.
+- Przy każdym utworzeniu lub edycji zadania albo podzadania zawsze dodaj do
+  niego komentarz z obszernym wyjaśnieniem: dlaczego zadanie powstaje lub jest
+  zmieniane, jaka decyzja lub ustalenie jest tego podstawą oraz do jakiego
+  rezultatu chcemy doprowadzić. Komentarz ma zachować użyteczną kopię
+  kontekstu, a nie tylko powtórzyć tytuł zadania.
+- Przed istotną edycją, gdy wymaga tego nowy kontekst, decyzja lub kierunek,
+  dodaj również komentarz uprzedzający; po zmianie dodaj komentarz opisujący
+  samą zmianę, bez usuwania wcześniejszych komentarzy.
+- Po zmianie pobierz obiekt i jego komentarze ponownie oraz zweryfikuj
+  rezultat i zapis dokumentacji.
 - Nie twórz lokalnych kopii ani historii wykonania.
 - Nie usuwaj zadań lub projektów bez wyraźnej prośby.
 - Nie twórz projektu Todoist ani nie zgaduj powiązania bez zgody Krystiana.

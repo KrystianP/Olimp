@@ -45,8 +45,12 @@ intencję i stosuje odpowiednią procedurę.
 
 - Todoist jest źródłem stanu zadań.
 - Najpierw znajdź właściwy projekt i obiekt.
+- Przy każdym utworzeniu lub edycji zadania albo podzadania dodaj komentarz z
+  obszernym wyjaśnieniem powodu, decyzji lub ustalenia oraz oczekiwanego
+  rezultatu. Przed istotną edycją dodaj dodatkowy komentarz uprzedzający, gdy
+  nowy kontekst tego wymaga; po zmianie zachowaj komentarz opisujący zmianę.
 - Wykonaj tylko zatwierdzoną zmianę.
-- Pobierz wynik ponownie i zweryfikuj zapis.
+- Pobierz zadanie i komentarze ponownie oraz zweryfikuj zapis.
 
 ## „Uruchamiamy nowy projekt X”
 

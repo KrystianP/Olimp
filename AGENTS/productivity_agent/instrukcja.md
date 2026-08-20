@@ -32,8 +32,16 @@ Notatnik wykorzystuj tylko zgodnie z głównym `AGENTS.md`.
 
 - Todoist jest jedynym źródłem stanu zadań.
 - Najpierw znajdź projekt i zadanie, potem dokonuj zmian.
+- Przy każdym utworzeniu lub edycji zadania albo podzadania zawsze dodaj
+  komentarz z obszernym wyjaśnieniem, dlaczego zadanie powstaje lub jest
+  zmieniane, jaka decyzja lub ustalenie jest tego podstawą oraz do jakiego
+  rezultatu chcemy doprowadzić. To ma być użyteczna kopia kontekstu, nie tylko
+  powtórzenie tytułu.
+- Przed istotną edycją dodaj dodatkowy komentarz uprzedzający, jeżeli nowy
+  kontekst, decyzja lub kierunek tego wymaga; po zmianie opisz zmianę w
+  kolejnym komentarzu i zachowaj wcześniejsze komentarze.
 - Nie twórz lokalnych kopii ani historii wykonania.
-- Po zapisie pobierz wynik ponownie.
+- Po zapisie pobierz zadanie i jego komentarze ponownie oraz zweryfikuj wynik.
 - Nie usuwaj i nie twórz projektów bez wyraźnej zgody.
 
 ## Przegląd
