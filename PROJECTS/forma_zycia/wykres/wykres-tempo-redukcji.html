@@ -1,0 +1,2180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src 'self' blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Tempo Redukcji</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe id="tempo-redukcji-frame" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" title="Tempo Redukcji" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src &#x27;self&#x27; blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Tempo Redukcji&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --red: light-dark(rgb(186 38 35), rgb(250 66 62));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: var(--border-radius-lg, 12.5px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed=&quot;true&quot;],
+    [aria-selected=&quot;true&quot;],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;tempo-redukcji-inline&quot;&gt;
+  &lt;div class=&quot;card tempo-card&quot;&gt;
+    &lt;div class=&quot;tempo-head&quot;&gt;
+      &lt;div class=&quot;tempo-head-text&quot;&gt;
+        &lt;h2&gt;Tempo redukcji masy ciała&lt;/h2&gt;
+        &lt;p class=&quot;text-muted text-small&quot;&gt;Plan: −0,8 kg / tydzień → cel 85 kg&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;span id=&quot;tempo-pace-chip&quot; class=&quot;tempo-pace-chip&quot;&gt;
+        &lt;i data-lucide=&quot;gauge&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;
+        &lt;span id=&quot;tempo-pace-chip-text&quot;&gt;—&lt;/span&gt;
+      &lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;viz-grid tempo-stats&quot;&gt;
+      &lt;div class=&quot;viz-stat&quot;&gt;
+        &lt;span class=&quot;tempo-stat-label text-muted text-small&quot;&gt;&lt;i data-lucide=&quot;scale&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Aktualna waga&lt;/span&gt;
+        &lt;span class=&quot;viz-stat-value&quot; id=&quot;stat-current&quot;&gt;—&lt;/span&gt;
+        &lt;span class=&quot;text-small&quot; id=&quot;stat-current-delta&quot;&gt;—&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;viz-stat&quot;&gt;
+        &lt;span class=&quot;tempo-stat-label text-muted text-small&quot;&gt;&lt;i data-lucide=&quot;target&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Do celu&lt;/span&gt;
+        &lt;span class=&quot;viz-stat-value&quot; id=&quot;stat-remaining&quot;&gt;—&lt;/span&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;z 85 kg&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;viz-stat&quot;&gt;
+        &lt;span class=&quot;tempo-stat-label text-muted text-small&quot;&gt;&lt;i data-lucide=&quot;trending-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Tempo (4 tyg.)&lt;/span&gt;
+        &lt;span class=&quot;viz-stat-value&quot; id=&quot;stat-pace&quot;&gt;—&lt;/span&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;plan: −0,8 kg/tydz.&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;viz-stat&quot;&gt;
+        &lt;span class=&quot;tempo-stat-label text-muted text-small&quot;&gt;&lt;i data-lucide=&quot;calendar&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Szac. data celu&lt;/span&gt;
+        &lt;span class=&quot;viz-stat-value&quot; id=&quot;stat-eta&quot;&gt;—&lt;/span&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;wg tempa planu&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;tempo-stage&quot;&gt;
+      &lt;svg class=&quot;tempo-chart&quot; role=&quot;img&quot; aria-labelledby=&quot;tempo-inline-title tempo-inline-description&quot; viewBox=&quot;0 0 720 390&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;
+        &lt;title id=&quot;tempo-inline-title&quot;&gt;Masa ciała i plan redukcji do 85 kilogramów&lt;/title&gt;
+        &lt;desc id=&quot;tempo-inline-description&quot;&gt;Ciągła linia przedstawia średnią tygodniową masy ciała. Przerywana linia przedstawia plan spadku o 0,8 kilograma tygodniowo. Najedź na punkt, aby zobaczyć datę i wagę. Cel widoczny jest jako pozioma linia na wykresie. Dwuklik lub gest szczypania na trackpadzie przybliża wykres w danym miejscu; przeciągnięcie lub przesunięcie dwoma palcami przesuwa widok.&lt;/desc&gt;
+      &lt;/svg&gt;
+      &lt;div id=&quot;tempo-tooltip&quot; class=&quot;tooltip tempo-tooltip&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;tempo-legend&quot; aria-label=&quot;Legenda wykresu&quot;&gt;
+      &lt;span&gt;&lt;i class=&quot;tempo-swatch tempo-actual-swatch&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Średnia tygodniowa&lt;/span&gt;
+      &lt;span&gt;&lt;i class=&quot;tempo-swatch tempo-daily-swatch&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Pomiary dzienne&lt;/span&gt;
+      &lt;span&gt;&lt;i class=&quot;tempo-swatch tempo-plan-swatch&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Plan: −0,8 kg / tydzień&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;tempo-pace-meter&quot; aria-hidden=&quot;true&quot;&gt;
+      &lt;div class=&quot;tempo-pace-track&quot;&gt;
+        &lt;div class=&quot;tempo-pace-tick&quot; style=&quot;left: 50%&quot;&gt;&lt;/div&gt;
+        &lt;div id=&quot;tempo-pace-fill&quot; class=&quot;tempo-pace-fill&quot;&gt;&lt;/div&gt;
+        &lt;div id=&quot;tempo-pace-marker&quot; class=&quot;tempo-pace-marker&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;tempo-pace-scale text-small text-muted&quot;&gt;
+        &lt;span&gt;Wolniej&lt;/span&gt;
+        &lt;span&gt;Zgodnie z planem&lt;/span&gt;
+        &lt;span&gt;Szybciej&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;p class=&quot;tempo-hint text-small text-muted&quot;&gt;Przybliżanie: dwuklik lub gest szczypania na trackpadzie. Przesuwanie: przeciągnij lub przesuń dwoma palcami.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  html,
+  body {
+    height: 100%;
+  }
+
+  #tempo-redukcji-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  #tempo-redukcji-inline .tempo-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 0.7rem;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  #tempo-redukcji-inline .tempo-card::before {
+    content: &quot;&quot;;
+    position: absolute;
+    top: -120px;
+    right: -100px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--primary) 18%, transparent) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #tempo-redukcji-inline .tempo-head {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #tempo-redukcji-inline .tempo-head h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-small);
+    white-space: nowrap;
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-chip svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-chip.is-ahead {
+    background: color-mix(in srgb, var(--green) 16%, transparent);
+    color: var(--green);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-chip.is-behind {
+    background: color-mix(in srgb, var(--viz-series-2) 18%, transparent);
+    color: var(--viz-series-2);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-chip.is-bad {
+    background: color-mix(in srgb, var(--destructive) 16%, transparent);
+    color: var(--destructive);
+  }
+
+  #tempo-redukcji-inline .tempo-stats {
+    position: relative;
+  }
+
+  #tempo-redukcji-inline .tempo-stat-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  #tempo-redukcji-inline .tempo-stat-label svg {
+    width: 13px;
+    height: 13px;
+    flex: none;
+  }
+
+  #tempo-redukcji-inline #stat-current-delta.is-down {
+    color: var(--green);
+  }
+
+  #tempo-redukcji-inline #stat-current-delta.is-up {
+    color: var(--destructive);
+  }
+
+  #tempo-redukcji-inline .tempo-stage {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    min-height: 180px;
+  }
+
+  #tempo-redukcji-inline .tempo-chart {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  #tempo-redukcji-inline.is-panning .tempo-chart {
+    cursor: grabbing;
+  }
+
+  #tempo-redukcji-inline .tempo-grid,
+  #tempo-redukcji-inline .tempo-axis-line {
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+
+  #tempo-redukcji-inline .tempo-axis,
+  #tempo-redukcji-inline .tempo-goal-label,
+  #tempo-redukcji-inline .tempo-date-label {
+    fill: var(--muted-foreground);
+  }
+
+  #tempo-redukcji-inline .tempo-actual-area {
+    fill: url(#tempo-actual-gradient);
+  }
+
+  #tempo-redukcji-inline .tempo-actual-path {
+    fill: none;
+    stroke: var(--viz-series-1);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  #tempo-redukcji-inline .tempo-plan-path {
+    fill: none;
+    stroke: var(--viz-series-2);
+    stroke-width: 2.5;
+    stroke-dasharray: 7 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  #tempo-redukcji-inline .tempo-daily-path {
+    fill: none;
+    stroke: var(--viz-series-3);
+    stroke-width: 2.5;
+    stroke-dasharray: 3 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  #tempo-redukcji-inline .tempo-point {
+    cursor: help;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: filter 180ms ease, stroke-width 180ms ease;
+  }
+
+  #tempo-redukcji-inline .tempo-point:hover {
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--primary) 58%, transparent));
+  }
+
+  #tempo-redukcji-inline .tempo-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    white-space: pre-line;
+    transition: opacity 140ms ease;
+  }
+
+  #tempo-redukcji-inline .tempo-tooltip.is-visible {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  #tempo-redukcji-inline .tempo-actual-point {
+    fill: var(--viz-series-1);
+    stroke: var(--background);
+    stroke-width: 2;
+  }
+
+  #tempo-redukcji-inline .tempo-plan-point {
+    fill: var(--background);
+    stroke: var(--viz-series-2);
+    stroke-width: 2;
+  }
+
+  #tempo-redukcji-inline .tempo-daily-point {
+    fill: var(--viz-series-3);
+    stroke: var(--background);
+    stroke-width: 2;
+  }
+
+  #tempo-redukcji-inline .tempo-latest-point {
+    stroke: var(--foreground);
+    stroke-width: 3;
+  }
+
+  #tempo-redukcji-inline .tempo-goal-line {
+    stroke: var(--muted-foreground);
+    stroke-width: 1;
+    stroke-dasharray: 4 5;
+  }
+
+  #tempo-redukcji-inline .tempo-current-label {
+    fill: var(--foreground);
+    font-weight: 500;
+  }
+
+  #tempo-redukcji-inline .tempo-daily-label {
+    fill: var(--foreground);
+    font-weight: 500;
+  }
+
+  #tempo-redukcji-inline .tempo-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: var(--muted-foreground);
+  }
+
+  #tempo-redukcji-inline .tempo-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  #tempo-redukcji-inline .tempo-swatch {
+    width: 2rem;
+    border-top: 3px solid;
+  }
+
+  #tempo-redukcji-inline .tempo-actual-swatch {
+    border-top-color: var(--viz-series-1);
+  }
+
+  #tempo-redukcji-inline .tempo-plan-swatch {
+    border-top-color: var(--viz-series-2);
+    border-top-style: dashed;
+  }
+
+  #tempo-redukcji-inline .tempo-daily-swatch {
+    border-top-color: var(--viz-series-3);
+    border-top-style: dotted;
+  }
+
+  #tempo-redukcji-inline .tempo-hint {
+    margin: 0;
+  }
+
+  #tempo-redukcji-inline .tempo-error {
+    align-self: start;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  #tempo-redukcji-inline .tempo-pulse {
+    fill: none;
+    stroke: var(--viz-series-1);
+    stroke-width: 2;
+    opacity: 0;
+    pointer-events: none;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  #tempo-redukcji-inline:not(.reduce-motion) .tempo-pulse {
+    animation: tempo-pulse-ring 2.4s ease-out infinite;
+  }
+
+  @keyframes tempo-pulse-ring {
+    0% { r: 6; opacity: 0.55; }
+    100% { r: 16; opacity: 0; }
+  }
+
+  #tempo-redukcji-inline .tempo-pace-meter {
+    display: grid;
+    gap: 4px;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-track {
+    position: relative;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--muted);
+    overflow: hidden;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-tick {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--card-foreground);
+    opacity: 0.35;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    border-radius: var(--radius-full);
+    background: var(--muted-foreground);
+    transition: width 500ms cubic-bezier(0.22, 1, 0.36, 1), left 500ms cubic-bezier(0.22, 1, 0.36, 1), background-color 300ms ease;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-fill.is-ahead {
+    background: var(--green);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-fill.is-behind {
+    background: var(--viz-series-2);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-fill.is-bad {
+    background: var(--destructive);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-marker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--background);
+    border-radius: var(--radius-full);
+    background: var(--muted-foreground);
+    box-shadow: var(--shadow-sm);
+    transform: translate(-50%, -50%);
+    transition: left 500ms cubic-bezier(0.22, 1, 0.36, 1), background-color 300ms ease;
+  }
+
+  #tempo-redukcji-inline .tempo-pace-marker.is-ahead {
+    background: var(--green);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-marker.is-behind {
+    background: var(--viz-series-2);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-marker.is-bad {
+    background: var(--destructive);
+  }
+
+  #tempo-redukcji-inline .tempo-pace-scale {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tempo-redukcji-inline .tempo-point {
+      transition: none;
+    }
+
+    #tempo-redukcji-inline .tempo-pulse {
+      animation: none;
+    }
+  }
+&lt;/style&gt;
+
+&lt;script&gt;
+(async () =&gt; {
+  const root = document.getElementById(&#x27;tempo-redukcji-inline&#x27;);
+  const svg = root.querySelector(&#x27;.tempo-chart&#x27;);
+  const tooltip = document.getElementById(&#x27;tempo-tooltip&#x27;);
+  const svgNamespace = &#x27;http://www.w3.org/2000/svg&#x27;;
+  const reduceMotion = window.matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches;
+  const weightDataUrl = new URL(&#x27;/data/waga.csv&#x27;, document.baseURI);
+  const fetchWeightCsv = async () =&gt; {
+    const requestUrl = new URL(weightDataUrl);
+    requestUrl.searchParams.set(&#x27;updated&#x27;, Date.now().toString());
+    const response = await fetch(requestUrl, { cache: &#x27;no-store&#x27; });
+    if (!response.ok) {
+      throw new Error(&#x27;Nie udało się pobrać DATA/waga.csv.&#x27;);
+    }
+    return response.text();
+  };
+  const parseWeightCsv = (source) =&gt; {
+    const lines = source.trim().split(/\r?\n/).filter(Boolean);
+    const headers = lines.shift().split(&#x27;,&#x27;);
+    return lines.map((line) =&gt; {
+      const values = line.split(&#x27;,&#x27;);
+      return Object.fromEntries(
+        headers.map((header, index) =&gt; [header, (values[index] ?? &#x27;&#x27;).trim()])
+      );
+    });
+  };
+  const selectMeasurements = (rows, recordType, startDate) =&gt;
+    rows
+      .filter((row) =&gt;
+        row.typ_rekordu === recordType
+        &amp;&amp; row.data &gt;= startDate
+        &amp;&amp; Number.isFinite(Number(row.waga_kg))
+      )
+      .map((row) =&gt; ({ date: row.data, weight: Number(row.waga_kg) }))
+      .sort((left, right) =&gt; left.date.localeCompare(right.date));
+  const showDataError = (message) =&gt; {
+    root.innerHTML =
+      &#x27;&lt;div role=&quot;alert&quot; class=&quot;card tempo-error&quot;&gt;&#x27;
+      + `&lt;strong&gt;${message}&lt;/strong&gt;&lt;br&gt;`
+      + &#x27;Uruchom wykres przez plik uruchom-wykres.command.&#x27;
+      + &#x27;&lt;/div&gt;&#x27;;
+  };
+  let csvSnapshot;
+  let weightRows;
+  try {
+    csvSnapshot = await fetchWeightCsv();
+    weightRows = parseWeightCsv(csvSnapshot);
+    root.dataset.lastDataCheck = Date.now().toString();
+  } catch (error) {
+    showDataError(&#x27;Nie udało się wczytać danych wagi.&#x27;);
+    console.error(error);
+    return;
+  }
+  const weeklyActual = selectMeasurements(
+    weightRows, &#x27;srednia_tygodniowa&#x27;, &#x27;2026-04-01&#x27;
+  );
+  const dailyMeasurements = selectMeasurements(
+    weightRows, &#x27;pomiar_dzienny&#x27;, &#x27;2026-07-12&#x27;
+  );
+  if (weeklyActual.length === 0 || dailyMeasurements.length === 0) {
+    showDataError(&#x27;Brak danych potrzebnych do narysowania wykresu.&#x27;);
+    return;
+  }
+  window.setInterval(async () =&gt; {
+    try {
+      const currentCsv = await fetchWeightCsv();
+      root.dataset.lastDataCheck = Date.now().toString();
+      if (currentCsv !== csvSnapshot) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.warn(&#x27;Nie udało się sprawdzić aktualizacji DATA/waga.csv.&#x27;, error);
+    }
+  }, 10000);
+  const weeklyLoss = 0.8;
+  const targetWeight = 85;
+  const latestActual = weeklyActual.at(-1);
+  const latestDaily = dailyMeasurements.at(-1);
+  const parseDate = (value) =&gt; new Date(`${value}T12:00:00`);
+  const dateKey = (date) =&gt; date.toISOString().slice(0, 10);
+  const addDays = (date, days) =&gt; new Date(date.getTime() + days * 86400000);
+  const formatWeight = (value) =&gt; `${value.toFixed(1).replace(&#x27;.&#x27;, &#x27;,&#x27;)} kg`;
+  const formatDate = (value) =&gt; new Intl.DateTimeFormat(&#x27;pl-PL&#x27;, {
+    day: &#x27;numeric&#x27;, month: &#x27;long&#x27;, year: &#x27;numeric&#x27;
+  }).format(parseDate(value));
+  const formatShortDate = (value) =&gt; new Intl.DateTimeFormat(&#x27;pl-PL&#x27;, {
+    day: &#x27;numeric&#x27;, month: &#x27;short&#x27;
+  }).format(parseDate(value));
+  const planned = [];
+  for (let week = 0; ; week += 1) {
+    const weight = Math.max(targetWeight, +(latestActual.weight - week * weeklyLoss).toFixed(1));
+    planned.push({ date: dateKey(addDays(parseDate(latestActual.date), week * 7)), weight });
+    if (weight === targetWeight) break;
+  }
+  const formatSignedWeight = (value) =&gt; {
+    const sign = value &gt; 0 ? &#x27;+&#x27; : value &lt; 0 ? &#x27;−&#x27; : &#x27;&#x27;;
+    return `${sign}${Math.abs(value).toFixed(1).replace(&#x27;.&#x27;, &#x27;,&#x27;)} kg`;
+  };
+  const formatMonthYear = (value) =&gt; new Intl.DateTimeFormat(&#x27;pl-PL&#x27;, {
+    month: &#x27;long&#x27;, year: &#x27;numeric&#x27;
+  }).format(parseDate(value));
+  const previousActual = weeklyActual.length &gt; 1 ? weeklyActual.at(-2) : null;
+  const currentDelta = previousActual ? +(latestActual.weight - previousActual.weight).toFixed(1) : null;
+  const remainingToGoal = +(latestActual.weight - targetWeight).toFixed(1);
+  const planPaceWeekly = -weeklyLoss;
+  const etaDate = planned.at(-1).date;
+  let recentPaceWeekly = null;
+  if (weeklyActual.length &gt; 1) {
+    const paceWindowStart = addDays(parseDate(latestActual.date), -28);
+    let paceWindowPoints = weeklyActual.filter((point) =&gt; parseDate(point.date) &gt;= paceWindowStart);
+    if (paceWindowPoints.length &lt; 2) paceWindowPoints = weeklyActual.slice(-2);
+    const paceStart = paceWindowPoints[0];
+    const paceElapsedDays = Math.max(1, (parseDate(latestActual.date) - parseDate(paceStart.date)) / 86400000);
+    recentPaceWeekly = ((latestActual.weight - paceStart.weight) / paceElapsedDays) * 7;
+  }
+  const width = 720;
+  const height = 390;
+  const margin = { top: 30, right: 28, bottom: 58, left: 62 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const fullDomain = {
+    dateMin: parseDate(weeklyActual[0].date).getTime(),
+    dateMax: parseDate(planned.at(-1).date).getTime(),
+    weightMin: 84,
+    weightMax: 110
+  };
+  let currentDomain = { ...fullDomain };
+  let animationFrame = null;
+  let activeTooltipCircle = null;
+  let panState = null;
+  let suppressPointClick = false;
+
+  const createSvgElement = (tag, attributes = {}) =&gt; {
+    const element = document.createElementNS(svgNamespace, tag);
+    Object.entries(attributes).forEach(([name, value]) =&gt; element.setAttribute(name, String(value)));
+    return element;
+  };
+  const setAttributes = (element, attributes) =&gt; {
+    Object.entries(attributes).forEach(([name, value]) =&gt; element.setAttribute(name, String(value)));
+  };
+
+  const defs = createSvgElement(&#x27;defs&#x27;);
+  const gradient = createSvgElement(&#x27;linearGradient&#x27;, {
+    id: &#x27;tempo-actual-gradient&#x27;, x1: &#x27;0&#x27;, x2: &#x27;0&#x27;, y1: &#x27;0&#x27;, y2: &#x27;1&#x27;
+  });
+  gradient.append(
+    createSvgElement(&#x27;stop&#x27;, { offset: &#x27;0%&#x27;, &#x27;stop-color&#x27;: &#x27;var(--viz-series-1)&#x27;, &#x27;stop-opacity&#x27;: &#x27;0.25&#x27; }),
+    createSvgElement(&#x27;stop&#x27;, { offset: &#x27;100%&#x27;, &#x27;stop-color&#x27;: &#x27;var(--viz-series-1)&#x27;, &#x27;stop-opacity&#x27;: &#x27;0&#x27; })
+  );
+  const clipPath = createSvgElement(&#x27;clipPath&#x27;, { id: &#x27;tempo-plot-clip&#x27; });
+  clipPath.append(createSvgElement(&#x27;rect&#x27;, {
+    x: margin.left, y: margin.top, width: plotWidth, height: plotHeight
+  }));
+  defs.append(gradient, clipPath);
+  svg.append(defs);
+
+  const gridLayer = createSvgElement(&#x27;g&#x27;);
+  const plotLayer = createSvgElement(&#x27;g&#x27;, { &#x27;clip-path&#x27;: &#x27;url(#tempo-plot-clip)&#x27; });
+  const labelLayer = createSvgElement(&#x27;g&#x27;);
+  svg.append(gridLayer, plotLayer, labelLayer);
+  const yGrid = Array.from({ length: 7 }, () =&gt; ({
+    line: createSvgElement(&#x27;line&#x27;, { class: &#x27;tempo-grid&#x27; }),
+    label: createSvgElement(&#x27;text&#x27;, { &#x27;text-anchor&#x27;: &#x27;end&#x27;, class: &#x27;tempo-axis text-small&#x27; })
+  }));
+  yGrid.forEach(({ line, label }) =&gt; gridLayer.append(line, label));
+  const xTicks = Array.from({ length: 4 }, () =&gt; ({
+    line: createSvgElement(&#x27;line&#x27;, { class: &#x27;tempo-axis-line&#x27; }),
+    label: createSvgElement(&#x27;text&#x27;, { &#x27;text-anchor&#x27;: &#x27;middle&#x27;, class: &#x27;tempo-date-label text-small&#x27; })
+  }));
+  xTicks.forEach(({ line, label }) =&gt; gridLayer.append(line, label));
+  gridLayer.append(
+    createSvgElement(&#x27;line&#x27;, {
+      x1: margin.left, x2: width - margin.right, y1: height - margin.bottom, y2: height - margin.bottom, class: &#x27;tempo-axis-line&#x27;
+    }),
+    createSvgElement(&#x27;line&#x27;, {
+      x1: margin.left, x2: margin.left, y1: margin.top, y2: height - margin.bottom, class: &#x27;tempo-axis-line&#x27;
+    })
+  );
+  const actualArea = createSvgElement(&#x27;path&#x27;, { class: &#x27;tempo-actual-area&#x27; });
+  const goalLine = createSvgElement(&#x27;line&#x27;, { class: &#x27;tempo-goal-line&#x27; });
+  const planPath = createSvgElement(&#x27;path&#x27;, { class: &#x27;tempo-plan-path&#x27; });
+  const dailyPath = createSvgElement(&#x27;path&#x27;, { class: &#x27;tempo-daily-path&#x27; });
+  const actualPath = createSvgElement(&#x27;path&#x27;, { class: &#x27;tempo-actual-path&#x27; });
+  plotLayer.append(actualArea, goalLine, planPath, dailyPath, actualPath);
+  const pulseCircle = createSvgElement(&#x27;circle&#x27;, { class: &#x27;tempo-pulse&#x27;, r: 6 });
+  plotLayer.append(pulseCircle);
+  const goalLabel = createSvgElement(&#x27;text&#x27;, {
+    &#x27;text-anchor&#x27;: &#x27;end&#x27;, class: &#x27;tempo-goal-label text-small&#x27;
+  });
+  goalLabel.textContent = &#x27;CEL 85 KG&#x27;;
+  const currentLabel = createSvgElement(&#x27;text&#x27;, {
+    &#x27;text-anchor&#x27;: &#x27;start&#x27;, class: &#x27;tempo-current-label text-small&#x27;
+  });
+  currentLabel.textContent = formatWeight(latestActual.weight);
+  const dailyLabel = createSvgElement(&#x27;text&#x27;, {
+    &#x27;text-anchor&#x27;: &#x27;start&#x27;, class: &#x27;tempo-daily-label text-small&#x27;
+  });
+  dailyLabel.textContent = formatWeight(latestDaily.weight);
+  labelLayer.append(goalLabel, currentLabel, dailyLabel);
+
+  const planPoints = planned.map((point) =&gt; {
+    const tooltip = `Data: ${formatDate(point.date)}\nPlanowana waga: ${formatWeight(point.weight)}`;
+    const circle = createSvgElement(&#x27;circle&#x27;, {
+      r: 4, class: &#x27;tempo-point tempo-plan-point&#x27;, &#x27;data-tooltip-text&#x27;: tooltip,
+      &#x27;aria-label&#x27;: tooltip
+    });
+    plotLayer.append(circle);
+    return { point, circle };
+  });
+  const actualPoints = weeklyActual.map((point, index) =&gt; {
+    const previous = index &gt; 0 ? weeklyActual[index - 1] : null;
+    const deltaLine = previous
+      ? `\nZmiana: ${formatSignedWeight(+(point.weight - previous.weight).toFixed(1))}`
+      : &#x27;&#x27;;
+    const tooltip = `Data: ${formatDate(point.date)}\nWaga: ${formatWeight(point.weight)}${deltaLine}`;
+    const circle = createSvgElement(&#x27;circle&#x27;, {
+      r: index === weeklyActual.length - 1 ? 6 : 5,
+      class: `tempo-point tempo-actual-point${index === weeklyActual.length - 1 ? &#x27; tempo-latest-point&#x27; : &#x27;&#x27;}`,
+      &#x27;data-tooltip-text&#x27;: tooltip, &#x27;aria-label&#x27;: tooltip
+    });
+    plotLayer.append(circle);
+    return { point, circle };
+  });
+  const dailyPoints = dailyMeasurements.map((point, index) =&gt; {
+    const tooltip = `Data: ${formatDate(point.date)}\nWaga: ${formatWeight(point.weight)}`;
+    const circle = createSvgElement(&#x27;circle&#x27;, {
+      r: index === dailyMeasurements.length - 1 ? 5.5 : 4,
+      class: &#x27;tempo-point tempo-daily-point&#x27;, &#x27;data-tooltip-text&#x27;: tooltip, &#x27;aria-label&#x27;: tooltip
+    });
+    plotLayer.append(circle);
+    return { point, circle };
+  });
+  [...planPoints, ...actualPoints, ...dailyPoints].forEach(({ circle }) =&gt; {
+    circle.addEventListener(&#x27;pointerenter&#x27;, () =&gt; {
+      showTooltip(circle);
+      if (reduceMotion) return;
+      circle.animate(
+        [{ transform: &#x27;scale(1)&#x27; }, { transform: &#x27;scale(1.42)&#x27; }, { transform: &#x27;scale(1.12)&#x27; }],
+        { duration: 320, easing: &#x27;cubic-bezier(0.22, 1, 0.36, 1)&#x27;, fill: &#x27;forwards&#x27; }
+      );
+    });
+    circle.addEventListener(&#x27;pointerleave&#x27;, () =&gt; {
+      hideTooltip();
+      if (reduceMotion) return;
+      circle.animate(
+        [{ transform: &#x27;scale(1.12)&#x27; }, { transform: &#x27;scale(1)&#x27; }],
+        { duration: 180, easing: &#x27;ease-out&#x27;, fill: &#x27;forwards&#x27; }
+      );
+    });
+    circle.addEventListener(&#x27;click&#x27;, (event) =&gt; {
+      if (suppressPointClick) return;
+      event.stopPropagation();
+      showTooltip(circle);
+    });
+  });
+
+  function positionTooltip(circle) {
+    const markRect = circle.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const center = markRect.left + markRect.width / 2;
+    const halfWidth = tooltipRect.width / 2;
+    const left = Math.max(halfWidth + 5, Math.min(window.innerWidth - halfWidth - 5, center));
+    const fitsAbove = markRect.top - tooltipRect.height - 10 &gt;= 5;
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${fitsAbove ? markRect.top - 10 : markRect.bottom + 10}px`;
+    tooltip.style.transform = fitsAbove ? &#x27;translate(-50%, -100%)&#x27; : &#x27;translate(-50%, 0)&#x27;;
+  }
+
+  function showTooltip(circle) {
+    activeTooltipCircle = circle;
+    tooltip.textContent = circle.getAttribute(&#x27;data-tooltip-text&#x27;);
+    tooltip.classList.add(&#x27;is-visible&#x27;);
+    positionTooltip(circle);
+  }
+
+  function hideTooltip() {
+    activeTooltipCircle = null;
+    tooltip.classList.remove(&#x27;is-visible&#x27;);
+  }
+
+  root.addEventListener(&#x27;pointerdown&#x27;, (event) =&gt; {
+    if (!event.target.classList.contains(&#x27;tempo-point&#x27;)) hideTooltip();
+  });
+
+  const scaleX = (date, domain) =&gt; margin.left + ((parseDate(date).getTime() - domain.dateMin) / (domain.dateMax - domain.dateMin)) * plotWidth;
+  const scaleY = (weight, domain) =&gt; margin.top + ((domain.weightMax - weight) / (domain.weightMax - domain.weightMin)) * plotHeight;
+  const linePath = (points, domain) =&gt; points.map((point, index) =&gt; `${index === 0 ? &#x27;M&#x27; : &#x27;L&#x27;} ${scaleX(point.date, domain).toFixed(2)} ${scaleY(point.weight, domain).toFixed(2)}`).join(&#x27; &#x27;);
+  const areaPath = (points, domain) =&gt; {
+    const baseline = height - margin.bottom;
+    return `${linePath(points, domain)} L ${scaleX(points.at(-1).date, domain).toFixed(2)} ${baseline} L ${scaleX(points[0].date, domain).toFixed(2)} ${baseline} Z`;
+  };
+
+  function clampViewportDomain(domain) {
+    const clampRange = (min, max, boundMin, boundMax) =&gt; {
+      const span = max - min;
+      const boundSpan = boundMax - boundMin;
+      if (span &gt;= boundSpan) return [boundMin, boundMax];
+      const clampedMin = Math.max(boundMin, Math.min(boundMax - span, min));
+      return [clampedMin, clampedMin + span];
+    };
+    const [dateMin, dateMax] = clampRange(
+      domain.dateMin, domain.dateMax, fullDomain.dateMin, fullDomain.dateMax
+    );
+    const [weightMin, weightMax] = clampRange(
+      domain.weightMin, domain.weightMax, fullDomain.weightMin, fullDomain.weightMax
+    );
+    return { dateMin, dateMax, weightMin, weightMax };
+  }
+
+  function render(domain) {
+    const x = (date) =&gt; scaleX(date, domain);
+    const y = (weight) =&gt; scaleY(weight, domain);
+    actualArea.setAttribute(&#x27;d&#x27;, areaPath(weeklyActual, domain));
+    actualPath.setAttribute(&#x27;d&#x27;, linePath(weeklyActual, domain));
+    planPath.setAttribute(&#x27;d&#x27;, linePath(planned, domain));
+    dailyPath.setAttribute(&#x27;d&#x27;, linePath(dailyMeasurements, domain));
+    setAttributes(goalLine, {
+      x1: margin.left, x2: width - margin.right, y1: y(targetWeight), y2: y(targetWeight)
+    });
+    setAttributes(goalLabel, {
+      x: width - margin.right, y: y(targetWeight) - 8,
+      visibility: y(targetWeight) &gt;= margin.top &amp;&amp; y(targetWeight) &lt;= height - margin.bottom ? &#x27;visible&#x27; : &#x27;hidden&#x27;
+    });
+    setAttributes(currentLabel, {
+      x: x(latestActual.date) + 10, y: y(latestActual.weight) - 10,
+      visibility: x(latestActual.date) &gt;= margin.left &amp;&amp; x(latestActual.date) &lt;= width - margin.right &amp;&amp; y(latestActual.weight) &gt;= margin.top &amp;&amp; y(latestActual.weight) &lt;= height - margin.bottom ? &#x27;visible&#x27; : &#x27;hidden&#x27;
+    });
+    setAttributes(dailyLabel, {
+      x: x(latestDaily.date) + 10, y: y(latestDaily.weight) + 17,
+      visibility: x(latestDaily.date) &gt;= margin.left &amp;&amp; x(latestDaily.date) &lt;= width - margin.right &amp;&amp; y(latestDaily.weight) &gt;= margin.top &amp;&amp; y(latestDaily.weight) &lt;= height - margin.bottom ? &#x27;visible&#x27; : &#x27;hidden&#x27;
+    });
+    planPoints.forEach(({ point, circle }) =&gt; setAttributes(circle, { cx: x(point.date), cy: y(point.weight) }));
+    actualPoints.forEach(({ point, circle }) =&gt; setAttributes(circle, { cx: x(point.date), cy: y(point.weight) }));
+    dailyPoints.forEach(({ point, circle }) =&gt; setAttributes(circle, { cx: x(point.date), cy: y(point.weight) }));
+    setAttributes(pulseCircle, { cx: x(latestActual.date), cy: y(latestActual.weight) });
+    yGrid.forEach(({ line, label }, index) =&gt; {
+      const value = domain.weightMin + ((domain.weightMax - domain.weightMin) * index) / (yGrid.length - 1);
+      const yValue = y(value);
+      setAttributes(line, { x1: margin.left, x2: width - margin.right, y1: yValue, y2: yValue });
+      setAttributes(label, { x: margin.left - 10, y: yValue + 4 });
+      label.textContent = `${value.toFixed(0)} kg`;
+    });
+    xTicks.forEach(({ line, label }, index) =&gt; {
+      const dateValue = domain.dateMin + ((domain.dateMax - domain.dateMin) * index) / (xTicks.length - 1);
+      const xValue = margin.left + (plotWidth * index) / (xTicks.length - 1);
+      setAttributes(line, {
+        x1: xValue, x2: xValue, y1: height - margin.bottom, y2: height - margin.bottom + 5
+      });
+      setAttributes(label, { x: xValue, y: height - margin.bottom + 24 });
+      label.textContent = formatShortDate(dateKey(new Date(dateValue)));
+    });
+    if (activeTooltipCircle != null) positionTooltip(activeTooltipCircle);
+  }
+
+  const maxZoom = 8;
+  const fullDateSpan = fullDomain.dateMax - fullDomain.dateMin;
+  const fullWeightSpan = fullDomain.weightMax - fullDomain.weightMin;
+  const minDateSpan = fullDateSpan / maxZoom;
+  const minWeightSpan = fullWeightSpan / maxZoom;
+  const clampNum = (value, min, max) =&gt; Math.min(max, Math.max(min, value));
+
+  function domainPointFromPixel(position, domain) {
+    return {
+      date: domain.dateMin + ((position.x - margin.left) / plotWidth) * (domain.dateMax - domain.dateMin),
+      weight: domain.weightMax - ((position.y - margin.top) / plotHeight) * (domain.weightMax - domain.weightMin)
+    };
+  }
+
+  function zoomToward(anchor, factor, domain) {
+    const dateSpan = clampNum((domain.dateMax - domain.dateMin) / factor, minDateSpan, fullDateSpan);
+    const weightSpan = clampNum((domain.weightMax - domain.weightMin) / factor, minWeightSpan, fullWeightSpan);
+    const dateRatio = (anchor.date - domain.dateMin) / (domain.dateMax - domain.dateMin);
+    const weightRatioFromTop = (domain.weightMax - anchor.weight) / (domain.weightMax - domain.weightMin);
+    const dateMin = anchor.date - dateRatio * dateSpan;
+    const weightMax = anchor.weight + weightRatioFromTop * weightSpan;
+    return clampViewportDomain({
+      dateMin, dateMax: dateMin + dateSpan,
+      weightMin: weightMax - weightSpan, weightMax
+    });
+  }
+
+  function animateTo(nextDomain) {
+    if (animationFrame != null) cancelAnimationFrame(animationFrame);
+    if (reduceMotion) {
+      currentDomain = nextDomain;
+      render(currentDomain);
+      return;
+    }
+    const startDomain = { ...currentDomain };
+    const startTime = performance.now();
+    const duration = 420;
+    const ease = (value) =&gt; 1 - Math.pow(1 - value, 3);
+    const step = (now) =&gt; {
+      const progress = Math.min(1, (now - startTime) / duration);
+      const eased = ease(progress);
+      currentDomain = Object.fromEntries(Object.keys(startDomain).map((key) =&gt; [
+        key, startDomain[key] + (nextDomain[key] - startDomain[key]) * eased
+      ]));
+      render(currentDomain);
+      if (progress &lt; 1) animationFrame = requestAnimationFrame(step);
+      else animationFrame = null;
+    };
+    animationFrame = requestAnimationFrame(step);
+  }
+
+  function pointerPosition(event) {
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * width,
+      y: ((event.clientY - rect.top) / rect.height) * height
+    };
+  }
+
+  svg.addEventListener(&#x27;pointerdown&#x27;, (event) =&gt; {
+    if (event.button !== 0) return;
+    const position = pointerPosition(event);
+    const insidePlot = position.x &gt;= margin.left &amp;&amp; position.x &lt;= width - margin.right
+      &amp;&amp; position.y &gt;= margin.top &amp;&amp; position.y &lt;= height - margin.bottom;
+    if (!insidePlot) return;
+    if (animationFrame != null) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    hideTooltip();
+    panState = {
+      pointerId: event.pointerId,
+      start: position,
+      domain: { ...currentDomain },
+      moved: false
+    };
+    svg.setPointerCapture(event.pointerId);
+    root.classList.add(&#x27;is-panning&#x27;);
+    event.preventDefault();
+  });
+
+  svg.addEventListener(&#x27;pointermove&#x27;, (event) =&gt; {
+    if (panState == null || event.pointerId !== panState.pointerId) return;
+    const position = pointerPosition(event);
+    const deltaX = position.x - panState.start.x;
+    const deltaY = position.y - panState.start.y;
+    if (Math.abs(deltaX) &gt; 3 || Math.abs(deltaY) &gt; 3) panState.moved = true;
+    const dateSpan = panState.domain.dateMax - panState.domain.dateMin;
+    const weightSpan = panState.domain.weightMax - panState.domain.weightMin;
+    const dateShift = -(deltaX / plotWidth) * dateSpan;
+    const weightShift = (deltaY / plotHeight) * weightSpan;
+    currentDomain = clampViewportDomain({
+      dateMin: panState.domain.dateMin + dateShift,
+      dateMax: panState.domain.dateMax + dateShift,
+      weightMin: panState.domain.weightMin + weightShift,
+      weightMax: panState.domain.weightMax + weightShift
+    });
+    render(currentDomain);
+    event.preventDefault();
+  });
+
+  const finishPan = (event) =&gt; {
+    if (panState == null || event.pointerId !== panState.pointerId) return;
+    suppressPointClick = panState.moved;
+    panState = null;
+    if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId);
+    root.classList.remove(&#x27;is-panning&#x27;);
+    setTimeout(() =&gt; { suppressPointClick = false; }, 0);
+  };
+  svg.addEventListener(&#x27;pointerup&#x27;, finishPan);
+  svg.addEventListener(&#x27;pointercancel&#x27;, finishPan);
+
+  svg.addEventListener(&#x27;dblclick&#x27;, (event) =&gt; {
+    const position = pointerPosition(event);
+    const insidePlot = position.x &gt;= margin.left &amp;&amp; position.x &lt;= width - margin.right
+      &amp;&amp; position.y &gt;= margin.top &amp;&amp; position.y &lt;= height - margin.bottom;
+    if (!insidePlot) return;
+    event.preventDefault();
+    hideTooltip();
+    const anchor = domainPointFromPixel(position, currentDomain);
+    animateTo(zoomToward(anchor, 2, currentDomain));
+  });
+
+  svg.addEventListener(&#x27;wheel&#x27;, (event) =&gt; {
+    const position = pointerPosition(event);
+    const insidePlot = position.x &gt;= margin.left &amp;&amp; position.x &lt;= width - margin.right
+      &amp;&amp; position.y &gt;= margin.top &amp;&amp; position.y &lt;= height - margin.bottom;
+    if (!insidePlot) return;
+    event.preventDefault();
+    if (animationFrame != null) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    hideTooltip();
+    if (event.ctrlKey) {
+      const anchor = domainPointFromPixel(position, currentDomain);
+      const factor = Math.exp(-event.deltaY * 0.01);
+      currentDomain = zoomToward(anchor, factor, currentDomain);
+    } else {
+      const dateSpan = currentDomain.dateMax - currentDomain.dateMin;
+      const weightSpan = currentDomain.weightMax - currentDomain.weightMin;
+      const dateShift = (event.deltaX / plotWidth) * dateSpan;
+      const weightShift = -(event.deltaY / plotHeight) * weightSpan;
+      currentDomain = clampViewportDomain({
+        dateMin: currentDomain.dateMin + dateShift,
+        dateMax: currentDomain.dateMax + dateShift,
+        weightMin: currentDomain.weightMin + weightShift,
+        weightMax: currentDomain.weightMax + weightShift
+      });
+    }
+    render(currentDomain);
+  }, { passive: false });
+
+  function paceStatus(paceWeekly) {
+    if (paceWeekly == null) return &#x27;unknown&#x27;;
+    if (paceWeekly &lt;= planPaceWeekly) return &#x27;ahead&#x27;;
+    if (paceWeekly &lt; 0) return &#x27;behind&#x27;;
+    return &#x27;bad&#x27;;
+  }
+
+  function initDashboard() {
+    const currentEl = document.getElementById(&#x27;stat-current&#x27;);
+    const deltaEl = document.getElementById(&#x27;stat-current-delta&#x27;);
+    const remainingEl = document.getElementById(&#x27;stat-remaining&#x27;);
+    const paceEl = document.getElementById(&#x27;stat-pace&#x27;);
+    const etaEl = document.getElementById(&#x27;stat-eta&#x27;);
+    const chip = document.getElementById(&#x27;tempo-pace-chip&#x27;);
+    const chipText = document.getElementById(&#x27;tempo-pace-chip-text&#x27;);
+    const paceFill = document.getElementById(&#x27;tempo-pace-fill&#x27;);
+    const paceMarker = document.getElementById(&#x27;tempo-pace-marker&#x27;);
+    const paceTick = root.querySelector(&#x27;.tempo-pace-tick&#x27;);
+
+    currentEl.textContent = formatWeight(latestActual.weight);
+    if (currentDelta == null) {
+      deltaEl.textContent = &#x27;Pierwszy pomiar&#x27;;
+    } else {
+      deltaEl.textContent = `${formatSignedWeight(currentDelta)} vs poprz. tydz.`;
+      deltaEl.classList.add(currentDelta &lt;= 0 ? &#x27;is-down&#x27; : &#x27;is-up&#x27;);
+    }
+    remainingEl.textContent = formatWeight(Math.max(0, remainingToGoal));
+    etaEl.textContent = formatMonthYear(etaDate);
+
+    const status = paceStatus(recentPaceWeekly);
+    const statusClass = status === &#x27;ahead&#x27; ? &#x27;is-ahead&#x27;
+      : status === &#x27;behind&#x27; ? &#x27;is-behind&#x27;
+      : status === &#x27;bad&#x27; ? &#x27;is-bad&#x27; : &#x27;&#x27;;
+    paceEl.textContent = recentPaceWeekly == null ? &#x27;—&#x27; : `${formatSignedWeight(recentPaceWeekly)}/tydz.`;
+    if (statusClass) {
+      chip.classList.add(statusClass);
+      paceFill.classList.add(statusClass);
+      paceMarker.classList.add(statusClass);
+    }
+    chipText.textContent = status === &#x27;ahead&#x27; ? &#x27;Szybciej niż plan&#x27;
+      : status === &#x27;behind&#x27; ? &#x27;Wolniej niż plan&#x27;
+      : status === &#x27;bad&#x27; ? &#x27;Przyrost masy&#x27;
+      : &#x27;Brak danych&#x27;;
+
+    if (recentPaceWeekly != null) {
+      const scaleMin = 0.6;
+      const scaleMax = -Math.max(1.6, Math.abs(recentPaceWeekly) * 1.15, Math.abs(planPaceWeekly) * 2);
+      const pct = (value) =&gt; {
+        const clamped = Math.min(scaleMin, Math.max(scaleMax, value));
+        return ((scaleMin - clamped) / (scaleMin - scaleMax)) * 100;
+      };
+      const referencePct = pct(planPaceWeekly);
+      const actualPct = pct(recentPaceWeekly);
+      paceTick.style.left = `${referencePct}%`;
+      paceFill.style.left = `${Math.min(referencePct, actualPct)}%`;
+      paceFill.style.width = `${Math.abs(actualPct - referencePct)}%`;
+      paceMarker.style.left = `${actualPct}%`;
+    }
+  }
+
+  function playEntranceAnimation() {
+    if (reduceMotion) return;
+    [actualPath, planPath, dailyPath].forEach((path, index) =&gt; {
+      const length = path.getTotalLength();
+      if (!length) return;
+      path.style.strokeDasharray = `${length}`;
+      path.style.strokeDashoffset = `${length}`;
+      const anim = path.animate(
+        [{ strokeDashoffset: length }, { strokeDashoffset: 0 }],
+        { duration: 900, delay: index * 120, easing: &#x27;cubic-bezier(0.22, 1, 0.36, 1)&#x27;, fill: &#x27;forwards&#x27; }
+      );
+      anim.addEventListener(&#x27;finish&#x27;, () =&gt; {
+        path.style.removeProperty(&#x27;stroke-dasharray&#x27;);
+        path.style.removeProperty(&#x27;stroke-dashoffset&#x27;);
+      });
+    });
+    actualArea.animate(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: 700, delay: 250, easing: &#x27;ease-out&#x27;, fill: &#x27;backwards&#x27; }
+    );
+    [...planPoints, ...actualPoints, ...dailyPoints].forEach(({ circle }, index) =&gt; {
+      circle.animate(
+        [
+          { transform: &#x27;scale(0)&#x27;, opacity: 0 },
+          { transform: &#x27;scale(1.25)&#x27;, opacity: 1, offset: 0.7 },
+          { transform: &#x27;scale(1)&#x27;, opacity: 1 }
+        ],
+        { duration: 480, delay: Math.min(260 + index * 10, 900), easing: &#x27;cubic-bezier(0.22, 1, 0.36, 1)&#x27;, fill: &#x27;backwards&#x27; }
+      );
+    });
+  }
+
+  if (reduceMotion) root.classList.add(&#x27;reduce-motion&#x27;);
+  render(currentDomain);
+  initDashboard();
+  playEntranceAnimation();
+})();
+&lt;/script&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>

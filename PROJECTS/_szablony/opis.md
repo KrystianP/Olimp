@@ -1,0 +1,35 @@
+# {{NAZWA_PROJEKTU}}
+
+## Metadane i Todoist
+
+- Obszar życia: {{ZDROWIE_RELACJE_FINANSE_PASJA_ROZWOJ_LUB_INNY}}.
+- ID projektu Todoist: {{POTWIERDZONE_ID_ALBO_BRAK_POTWIERDZONEGO_POWIAZANIA}}.
+- Todoist jest jedynym źródłem prawdy o zadaniach tego projektu.
+
+## Cel projektu
+
+{{JAKI_KONKRETNY_REZULTAT_MA_OSIAGNAC_PROJEKT}}
+
+## Definicja ukończenia
+
+{{PO_CZYM_POZNAMY_UKONCZENIE_I_CZY_OBOWIAZUJE_TERMIN}}
+
+## Sens projektu
+
+{{DLACZEGO_PROJEKT_ISTNIEJE_I_JAK_LACZY_SIE_Z_CELAMI_KRYSTIANA}}
+
+## Zakres
+
+- {{CO_NALEZY_DO_PROJEKTU}}
+
+## Poza zakresem
+
+- {{CZEGO_PROJEKT_SWIADOMIE_NIE_OBEJMUJE}}
+
+## Ograniczenia i ryzyka
+
+- {{NAJWAZNIEJSZE_OGRANICZENIA_LUB_RYZYKA}}
+
+## Zasady pracy
+
+- {{NAJWAZNIEJSZE_ZASADY_PROWADZENIA_PROJEKTU}}
