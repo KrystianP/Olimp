@@ -3,20 +3,9 @@
 set -eu
 
 script_dir=${0:A:h}
-repo_root=${script_dir:h:h:h}
-venv_dir="$script_dir/.venv-garmin"
+venv_dir="$HOME/Library/Application Support/KrystianOS/garmin/.venv-garmin"
 token_dir="$HOME/.config/krystian-os/garmin"
 token_file="$token_dir/garmin_tokens.json"
-
-if ! command -v gh >/dev/null 2>&1; then
-  echo "Brakuje GitHub CLI (gh). Zainstaluj je, a następnie uruchom ten plik ponownie."
-  exit 1
-fi
-
-if ! gh auth status >/dev/null 2>&1; then
-  echo "Zaloguj się teraz do GitHub w przeglądarce."
-  gh auth login --hostname github.com --web
-fi
 
 if [[ ! -x "$venv_dir/bin/python" ]]; then
   python3 -m venv "$venv_dir"
@@ -36,11 +25,23 @@ else
 fi
 
 if [[ ! -f "$token_file" ]]; then
-  echo "Nie powstał plik tokenu Garmin. Nic nie zostało wysłane do GitHub."
+  echo "Nie powstał lokalny plik tokenu Garmin."
   exit 1
 fi
 
-repo_url=$(git -C "$repo_root" remote get-url origin 2>/dev/null || true)
+echo "Gotowe: token Garmin jest tylko lokalnie w $token_dir."
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "Brakuje GitHub CLI (gh). Zainstaluj je, a następnie uruchom ten plik ponownie."
+  exit 1
+fi
+
+if ! gh auth status >/dev/null 2>&1; then
+  echo "Zaloguj się teraz do GitHub w przeglądarce."
+  gh auth login --hostname github.com --web
+fi
+
+repo_url=$(git -C "$script_dir/../../.." remote get-url origin 2>/dev/null || true)
 repo_name=$(printf '%s' "$repo_url" | sed -E 's#^(git@github.com:|https://github.com/|ssh://git@github.com/)##; s#\.git$##')
 if [[ -z "$repo_name" ]]; then
   echo "Nie udało się ustalić repozytorium GitHub z remote origin."
@@ -48,5 +49,4 @@ if [[ -z "$repo_name" ]]; then
 fi
 
 base64 < "$token_file" | tr -d '\n' | gh secret set GARMIN_TOKENS_JSON_B64 --repo "$repo_name"
-echo "Gotowe: token Garmin zapisano jako sekret GitHub, bez wyświetlania jego treści."
-echo "Następnie wypchnij pliki automatyzacji i uruchom workflow ręcznie z GitHub Actions."
+echo "Gotowe: token Garmin zapisano jako sekret GitHub. Synchronizacja wykona się w GitHub Actions o 23:45."

@@ -125,6 +125,72 @@ class SynchronizacjaGarminTest(unittest.TestCase):
 
         self.assertIn("odczekaj co najmniej godzinę", message)
 
+    def test_normalise_activity_extracts_future_application_fields(self) -> None:
+        activity = sync.normalise_activity(
+            {
+                "activityId": 123,
+                "activityName": "Wieczorny bieg",
+                "activityType": {"typeKey": "running"},
+                "startTimeLocal": "2026-08-20 20:30:00",
+                "duration": 1800,
+                "distance": 5000,
+                "calories": 480,
+                "averageSpeed": 2.5,
+                "averageRunningCadence": 164,
+                "averageHR": 145,
+                "maxHR": 168,
+                "elevationGain": 42,
+            }
+        )
+
+        self.assertEqual(activity["activity_id"], 123)
+        self.assertEqual(activity["typ"], "running")
+        self.assertEqual(activity["srednie_tempo_s_km"], 400)
+        self.assertEqual(activity["srednia_kadencja_rpm"], 164)
+
+    def test_database_saves_raw_details_and_activity_summary(self) -> None:
+        class Client:
+            def get_activity_details(self, activity_id: int) -> dict[str, object]:
+                return {"activityId": activity_id, "activityDetailMetrics": ["fake"]}
+
+            class ActivityDownloadFormat:
+                ORIGINAL = "original"
+
+            def download_activity(self, activity_id: str, dl_fmt: str) -> bytes:
+                assert dl_fmt == "original"
+                return b"fake-original"
+
+        activity = {
+            "activityId": 123,
+            "activityName": "Spacer",
+            "activityType": {"typeKey": "walking"},
+            "startTimeLocal": "2026-08-20 20:30:00",
+            "duration": 1800,
+            "distance": 2500,
+            "calories": 180,
+        }
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            connection = sync.initialise_database(directory / "garmin.sqlite")
+            saved = sync.save_activities_to_database(
+                Client(),
+                connection,
+                [activity],
+                directory / "raw",
+                directory / "original",
+                "2026-08-20T23:45:00+02:00",
+            )
+            result = connection.execute(
+                "SELECT activity_id, kalorie, szczegoly_json_plik FROM aktywnosci"
+            ).fetchone()
+            connection.close()
+
+            self.assertEqual(saved, 1)
+            self.assertEqual(result[0], 123)
+            self.assertEqual(result[1], 180)
+            self.assertTrue((directory / "raw" / "123.json").is_file())
+            self.assertEqual((directory / "original" / "123.zip").read_bytes(), b"fake-original")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,91 @@
+name: Synchronizuj dane Garmin
+
+on:
+  workflow_dispatch:
+    inputs:
+      activity_days:
+        description: "Liczba dni aktywności do importu; przy pierwszym uruchomieniu użyj 3650."
+        required: true
+        default: "3650"
+      weight_days:
+        description: "Liczba dni pomiarów wagi do importu; przy pierwszym uruchomieniu użyj 3650."
+        required: true
+        default: "3650"
+  schedule:
+    # GitHub Actions używa UTC. Dwa wyzwolenia obsługują czas letni i zimowy.
+    - cron: "45 21 * * *"
+    - cron: "45 22 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: synchronizacja-garmin
+  cancel-in-progress: false
+
+jobs:
+  synchronizuj:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Wybierz wyzwolenie właściwe dla czasu Bratysławy
+        id: schedule
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}:$(TZ=Europe/Bratislava date +%z)" = "45 21 * * *:+0200" ] || \
+               [ "${{ github.event.schedule }}:$(TZ=Europe/Bratislava date +%z)" = "45 22 * * *:+0100" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.schedule.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Zainstaluj zależność Garmin
+        if: steps.schedule.outputs.run == 'true'
+        run: python -m pip install --upgrade "garminconnect==0.3.4"
+
+      - name: Odtwórz token Garmin
+        if: steps.schedule.outputs.run == 'true'
+        env:
+          GARMIN_TOKENS_JSON_B64: ${{ secrets.GARMIN_TOKENS_JSON_B64 }}
+        run: |
+          test -n "$GARMIN_TOKENS_JSON_B64"
+          umask 077
+          mkdir -p "$RUNNER_TEMP/garmin-token"
+          printf '%s' "$GARMIN_TOKENS_JSON_B64" | base64 --decode > "$RUNNER_TEMP/garmin-token/garmin_tokens.json"
+
+      - name: Synchronizuj dane
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            activity_days="${{ inputs.activity_days }}"
+            weight_days="${{ inputs.weight_days }}"
+          else
+            activity_days=30
+            weight_days=14
+          fi
+          python PROJECTS/forma_zycia/automatyzacja/synchronizuj_garmin.py \
+            --token-store "$RUNNER_TEMP/garmin-token" \
+            --days "$weight_days" \
+            --activity-days "$activity_days"
+
+      - name: Zapisz dane w prywatnym repozytorium
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          if [ -z "$(git status --porcelain -- DATA/waga.csv DATA/garmin)" ]; then
+            echo "Brak nowych danych Garmin."
+            exit 0
+          fi
+          git config user.name "garmin-sync[bot]"
+          git config user.email "garmin-sync[bot]@users.noreply.github.com"
+          git add -- DATA/waga.csv DATA/garmin
+          git commit -m "Dane Garmin: synchronizacja $(TZ=Europe/Bratislava date '+%Y-%m-%d %H:%M')"
+          git push origin HEAD:main
