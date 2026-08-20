@@ -40,10 +40,12 @@ Każdy aktywny projekt posiada:
 `PROJECTS/_szablony/` jest wzorcem tworzenia nowych projektów, a nie aktywnym
 projektem.
 
-Aktualny projekt:
+Aktywne projekty:
 
 - `PROJECTS/forma_zycia/` — zdrowie, redukcja masy ciała, sprawność,
   regeneracja i ciągłość abstynencji.
+- `PROJECTS/finanse/` — finanse osobiste, bezpieczeństwo finansowe oraz
+  decyzje finansowe i inwestycyjne.
 
 ### `DATA/`
 
