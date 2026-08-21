@@ -46,6 +46,7 @@ Aktywne projekty:
   regeneracja i ciągłość abstynencji.
 - `PROJECTS/finanse/` — finanse osobiste, bezpieczeństwo finansowe oraz
   decyzje finansowe i inwestycyjne.
+- `PROJECTS/karola/` — relacja partnerska, stabilizacja, wspólny czas i komunikacja.
 
 ### `DATA/`
 
