@@ -39,6 +39,10 @@ Krystian chce budować życie obejmujące:
 Szczegółowy i zmienny kontekst zdrowotny znajduje się w
 `PROJECTS/forma_zycia/opis.md`, `status.md` i `DATA/`.
 
+Aktualne leki i suplementy są zapisane w
+`PROJECTS/forma_zycia/leczenie/aktualne-leki-i-suplementy.md`. Jest to stan
+zmienny i wymaga sprawdzenia daty ostatniego potwierdzenia.
+
 Trwałe granice:
 
 - podejrzenia metaboliczne nie są diagnozą,

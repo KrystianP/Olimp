@@ -1,14 +1,33 @@
 # Cele osobiste Krystiana
 
-Stan źródłowy przeniesiony 19.08.2026 z obowiązującego `CORE/cele.md`. Podział
-nie zmienia treści ani terminów. Aktualność celów i dat należy potwierdzić w
-najbliższym przeglądzie; sama migracja nie jest ich aktualizacją.
+## Status celów i historia
+
+Status zapisujemy w nawiasach kwadratowych przed treścią celu:
+
+- `[aktywne]` — cel jest obecnie realizowany;
+- `[zrealizowane]` — osiągnięto zdefiniowany rezultat;
+- `[wstrzymane]` — cel nie jest teraz realizowany, ale nie został porzucony;
+- `[porzucone]` — świadomie zakończono pracę nad celem bez osiągnięcia rezultatu.
+
+Przy zmianie statusu zachowujemy pierwotną treść, termin i kontekst celu, a pod
+nim dopisujemy właściwą informację:
+
+- `Zrealizowano: DD.MM.RRRR`;
+- `Wstrzymano: DD.MM.RRRR` oraz, jeśli wiadomo, warunek powrotu;
+- `Porzucono: DD.MM.RRRR` i powód decyzji.
+
+Celów zrealizowanych ani porzuconych nie usuwamy z pliku. Historia ma pokazywać
+nie tylko zamiary, ale także decyzje i rezultaty. Dotychczasowe cele bez
+znacznika traktujemy jako aktywne do czasu ich najbliższego przeglądu.
 
 ## Zdrowie
 
 1. Zredukować masę ciała do 85 kg do 30.01.2027 i utrzymać tę masę przez cały
    2027 rok.
-2. Wykonać kompleksowe badania zdrowia do 30.09.2026.
+2. [zrealizowane] Wykonać kompleksowe badania zdrowia do 30.09.2026.
+   - Zrealizowano: 24.08.2026.
+   - Potwierdzenie: wyniki badań zapisane w
+     `PROJECTS/forma_zycia/badania/24.08.2026/`.
 3. Osiągnąć 15% tkanki tłuszczowej do 27.07.2027, czyli do 40. urodzin.
 4. Utrzymywać abstynencję od alkoholu rozpoczętą 13.07.2026.
 
