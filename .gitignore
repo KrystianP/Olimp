@@ -1,2 +1,3 @@
 PROJECTS/forma_zycia/automatyzacja/.venv-garmin/
 __pycache__/
+.DS_Store
