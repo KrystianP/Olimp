@@ -58,6 +58,10 @@ Nie usuwaj historii pomiarów i nie traktuj pojedynczego odczytu jako diagnozy.
 ### `AGENTS/` i `.agents/skills/`
 
 - `health_agent/instrukcja.md` — bezpieczne wsparcie zdrowotne.
+- `health_agent/analizuj_wyniki.py` — MVP technicznego odczytu wyników badań z
+  PDF, z kontrolą jakości i numerami stron źródłowych.
+- `health_agent/PROTOKOL_ANALIZY.md` — kolejność analizy i zasady oddzielania
+  faktów, obserwacji, hipotez oraz rekomendacji.
 - `productivity_agent/instrukcja.md` — planowanie celów i projektów prywatnych.
 - `.agents/skills/prowadz-redukcje/` — wyspecjalizowany sposób analizy redukcji.
 

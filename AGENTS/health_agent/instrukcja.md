@@ -48,3 +48,20 @@ skilla `.agents/skills/prowadz-redukcje/SKILL.md`.
 - Oceniaj trend, nie pojedynczy pomiar.
 - Po potknięciu wracaj przy następnej decyzji.
 - Oddzielaj fakt, obserwację, hipotezę i rekomendację.
+
+## MVP analizy wyników badań
+
+Lokalny ekstraktor pierwszej wersji znajduje się w
+`AGENTS/health_agent/analizuj_wyniki.py`, a jego dokumentacja w
+`AGENTS/health_agent/README.md`.
+Zasady interpretacji opisuje `AGENTS/health_agent/PROTOKOL_ANALIZY.md`.
+
+- Traktuj oryginalne PDF-y w `PROJECTS/forma_zycia/badania/` jako źródła
+  niemodyfikowane.
+- Zanim wynik trafi do trwałej historii, potwierdź ręcznie rekordy o średniej
+  lub niskiej pewności odczytu.
+- Każda liczba musi zachować nazwę pliku i numer strony źródłowej.
+- Brak poprawnej ekstrakcji oznacza konieczność OCR lub ręcznej weryfikacji,
+  nigdy zgodę na zgadywanie.
+- Skrypt MVP nie zapisuje do `CORE`, nie tworzy zadań Todoist i nie ustala
+  rozpoznania ani leczenia.
