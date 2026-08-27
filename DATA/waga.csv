@@ -153,6 +153,7 @@ data,waga_kg,tkanka_tluszczowa_proc,bmi,typ_rekordu,okres_od,okres_do,zmiana_kg
 2026-08-01,103.9,,,srednia_tygodniowa,2026-07-26,2026-08-01,-2.0
 2026-08-08,103.7,,,srednia_tygodniowa,2026-08-02,2026-08-08,-0.2
 2026-08-15,102.6,,,srednia_tygodniowa,2026-08-09,2026-08-15,-1.1
+2026-08-22,101.0,,,srednia_tygodniowa,2026-08-16,2026-08-22,-1.6
 2026-06-24,107.4,,,pomiar_dzienny,,,
 2026-06-25,107.3,,,pomiar_dzienny,,,
 2026-07-01,108.7,,,pomiar_dzienny,,,
@@ -183,4 +184,15 @@ data,waga_kg,tkanka_tluszczowa_proc,bmi,typ_rekordu,okres_od,okres_do,zmiana_kg
 2026-08-13,103.5,,30.6,pomiar_dzienny,,,1.0
 2026-08-14,102.7,,30.3,pomiar_dzienny,,,-0.8
 2026-08-15,101.6,,30.0,pomiar_dzienny,,,-1.1
-2026-08-16,101.7,,,pomiar_dzienny,,,
+2026-08-16,101.7,,30.0,pomiar_dzienny,,,0.1
+2026-08-17,101.7,,30.0,pomiar_dzienny,,,0.0
+2026-08-18,101.1,,29.9,pomiar_dzienny,,,-0.6
+2026-08-19,101.2,,29.9,pomiar_dzienny,,,0.1
+2026-08-20,100.6,,29.7,pomiar_dzienny,,,-0.6
+2026-08-21,100.3,,29.6,pomiar_dzienny,,,-0.3
+2026-08-22,100.1,,29.6,pomiar_dzienny,,,-0.2
+2026-08-23,100.6,,29.7,pomiar_dzienny,,,0.5
+2026-08-24,99.7,,29.4,pomiar_dzienny,,,-0.9
+2026-08-25,100.8,,29.8,pomiar_dzienny,,,1.1
+2026-08-26,100.8,,29.8,pomiar_dzienny,,,0.0
+2026-08-27,100.0,,29.5,pomiar_dzienny,,,-0.8
