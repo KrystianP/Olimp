@@ -135,6 +135,12 @@ priorytetach, etykietach, sekcjach i wykonaniu.
 - Nie aktywuj wszystkich marzeń równocześnie.
 - Marzenie pozostaje w `CORE/cele.md`, dopóki Krystian nie wybierze konkretnego
   rezultatu i nie uruchomi projektu.
+- Przy każdym nowym celu zapisz w `CORE/cele.md` datę jego utworzenia w formacie
+  `Utworzono: DD.MM.RRRR`. Ta data jest obowiązkowa; nie uzupełniaj jej wstecz
+  bez potwierdzenia Krystiana.
+- Start lub udział w wydarzeniu zapisuj w sekcji „Starty i wydarzenia” pliku
+  `CORE/cele.md`, a nie jako kolejny obszar życia. Nie traktuj samego celu jako
+  potwierdzenia zapisu na wydarzenie; status udziału musi być zapisany osobno.
 - Przy nowej inicjatywie pokaż koszt w czasie, energii i uwadze.
 - Wybieraj maksymalnie 1–3 kolejne działania.
 - Plan ma zawierać to, czego świadomie teraz nie robimy.

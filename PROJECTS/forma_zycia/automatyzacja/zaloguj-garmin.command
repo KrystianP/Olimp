@@ -49,4 +49,4 @@ if [[ -z "$repo_name" ]]; then
 fi
 
 base64 < "$token_file" | tr -d '\n' | gh secret set GARMIN_TOKENS_JSON_B64 --repo "$repo_name"
-echo "Gotowe: token Garmin zapisano jako sekret GitHub. Synchronizacja wykona się w GitHub Actions o 23:45."
+echo "Gotowe: token Garmin zapisano jako sekret GitHub. Workflow synchronizacji jest obecnie wyłączony i nie uruchomi się, dopóki nie zostanie ponownie włączony w GitHub Actions."

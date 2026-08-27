@@ -12,3 +12,11 @@
 Powyższy stan został przeniesiony bez zmiany znaczenia. W ramach migracji nie
 sprawdzano aktualnych zadań w Todoist ani nie wyliczano nowego trendu z danych.
 Przed kolejnym planem należy odczytać bieżące zadania i aktualne pomiary.
+
+## Automatyzacja Garmin — stan na 27.08.2026
+
+- Workflow GitHub Actions „Synchronizuj dane Garmin” jest wyłączony ręcznie
+  (`disabled_manually`, workflow ID `339521550`).
+- Ostatnie uruchomienia zakończyły się; nie ma aktywnego uruchomienia.
+- Kod synchronizacji i istniejące dane Garmin pozostają zachowane. Ponowne
+  włączenie wymaga osobnej, świadomej decyzji.
