@@ -910,6 +910,63 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;/div&gt;
     &lt;/div&gt;
 
+    &lt;section class=&quot;tempo-energy&quot; aria-labelledby=&quot;tempo-energy-title&quot;&gt;
+      &lt;div class=&quot;tempo-energy-head&quot;&gt;
+        &lt;div&gt;
+          &lt;p class=&quot;tempo-eyebrow text-small&quot;&gt;Bilans drogi do 85 kg&lt;/p&gt;
+          &lt;h3 id=&quot;tempo-energy-title&quot;&gt;Energia zamieniona w postęp&lt;/h3&gt;
+        &lt;/div&gt;
+        &lt;span class=&quot;tempo-energy-model text-small&quot;&gt;Model: 7700 kcal / kg&lt;/span&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;tempo-energy-grid&quot;&gt;
+        &lt;div class=&quot;tempo-energy-stat tempo-energy-stat-done&quot;&gt;
+          &lt;span class=&quot;tempo-energy-icon&quot; aria-hidden=&quot;true&quot;&gt;&lt;i data-lucide=&quot;flame&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+          &lt;div&gt;
+            &lt;span class=&quot;tempo-energy-label text-small&quot;&gt;Ekwiwalent deficytu — za Tobą&lt;/span&gt;
+            &lt;strong class=&quot;tempo-energy-value&quot; id=&quot;stat-energy-burned&quot;&gt;—&lt;/strong&gt;
+            &lt;span class=&quot;tempo-energy-detail text-small&quot; id=&quot;stat-energy-burned-detail&quot;&gt;—&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;tempo-energy-stat tempo-energy-stat-left&quot;&gt;
+          &lt;span class=&quot;tempo-energy-icon&quot; aria-hidden=&quot;true&quot;&gt;&lt;i data-lucide=&quot;battery-charging&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+          &lt;div&gt;
+            &lt;span class=&quot;tempo-energy-label text-small&quot;&gt;Szacowany deficyt — do celu&lt;/span&gt;
+            &lt;strong class=&quot;tempo-energy-value&quot; id=&quot;stat-energy-remaining&quot;&gt;—&lt;/strong&gt;
+            &lt;span class=&quot;tempo-energy-detail text-small&quot; id=&quot;stat-energy-remaining-detail&quot;&gt;—&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;tempo-energy-stat tempo-energy-stat-date&quot;&gt;
+          &lt;span class=&quot;tempo-energy-icon&quot; aria-hidden=&quot;true&quot;&gt;&lt;i data-lucide=&quot;calendar-clock&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+          &lt;div&gt;
+            &lt;span class=&quot;tempo-energy-label text-small&quot;&gt;Estymowana data celu&lt;/span&gt;
+            &lt;strong class=&quot;tempo-energy-value&quot; id=&quot;stat-estimated-date&quot;&gt;—&lt;/strong&gt;
+            &lt;span class=&quot;tempo-energy-detail text-small&quot; id=&quot;stat-estimated-date-detail&quot;&gt;—&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;tempo-journey&quot;&gt;
+        &lt;div class=&quot;tempo-journey-summary&quot;&gt;
+          &lt;span class=&quot;text-small text-muted&quot;&gt;Droga wykonana&lt;/span&gt;
+          &lt;strong id=&quot;stat-journey-progress&quot;&gt;—&lt;/strong&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;tempo-journey-track&quot; id=&quot;tempo-journey-track&quot; role=&quot;progressbar&quot; aria-label=&quot;Postęp redukcji masy ciała&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;100&quot; aria-valuenow=&quot;0&quot;&gt;
+          &lt;div class=&quot;tempo-journey-fill&quot; id=&quot;tempo-journey-fill&quot;&gt;&lt;/div&gt;
+          &lt;span class=&quot;tempo-journey-marker&quot; id=&quot;tempo-journey-marker&quot;&gt;&lt;i data-lucide=&quot;footprints&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;tempo-journey-labels text-small&quot;&gt;
+          &lt;span&gt;&lt;b id=&quot;stat-journey-start&quot;&gt;—&lt;/b&gt;&lt;small&gt;start&lt;/small&gt;&lt;/span&gt;
+          &lt;span class=&quot;tempo-journey-current&quot;&gt;&lt;b id=&quot;stat-journey-current&quot;&gt;—&lt;/b&gt;&lt;small&gt;ostatni pomiar&lt;/small&gt;&lt;/span&gt;
+          &lt;span&gt;&lt;b id=&quot;stat-journey-goal&quot;&gt;—&lt;/b&gt;&lt;small&gt;cel&lt;/small&gt;&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;p class=&quot;tempo-energy-note text-small text-muted&quot;&gt;To orientacyjny ekwiwalent energetyczny zmiany masy, nie pomiar kalorii spalonych przez organizm. Prognoza daty korzysta z tempa średnich tygodniowych z ostatnich 4 tygodni.&lt;/p&gt;
+    &lt;/section&gt;
+
     &lt;div class=&quot;tempo-stage&quot;&gt;
       &lt;svg class=&quot;tempo-chart&quot; role=&quot;img&quot; aria-labelledby=&quot;tempo-inline-title tempo-inline-description&quot; viewBox=&quot;0 0 720 390&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;
         &lt;title id=&quot;tempo-inline-title&quot;&gt;Masa ciała i realizacja planu redukcji do 85 kilogramów&lt;/title&gt;
@@ -1031,6 +1088,213 @@ html&gt;body{padding:0}&lt;/style&gt;
 
   #tempo-redukcji-inline .tempo-stats {
     position: relative;
+  }
+
+  #tempo-redukcji-inline .tempo-energy {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
+    border-radius: var(--radius-2xl);
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 46%),
+      color-mix(in srgb, var(--card) 72%, var(--background));
+    overflow: hidden;
+  }
+
+  #tempo-redukcji-inline .tempo-energy::after {
+    content: &quot;&quot;;
+    position: absolute;
+    right: -54px;
+    bottom: -70px;
+    width: 180px;
+    height: 180px;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--viz-series-3) 9%, transparent);
+    filter: blur(2px);
+    pointer-events: none;
+  }
+
+  #tempo-redukcji-inline .tempo-energy-head,
+  #tempo-redukcji-inline .tempo-journey-summary {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #tempo-redukcji-inline .tempo-energy-head h3 {
+    margin-top: 2px;
+  }
+
+  #tempo-redukcji-inline .tempo-eyebrow {
+    color: var(--accent-foreground);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  #tempo-redukcji-inline .tempo-energy-model {
+    flex: none;
+    padding: 4px 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    color: var(--muted-foreground);
+    background: color-mix(in srgb, var(--background) 78%, transparent);
+    white-space: nowrap;
+  }
+
+  #tempo-redukcji-inline .tempo-energy-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  #tempo-redukcji-inline .tempo-energy-stat {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--background) 76%, transparent);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--muted);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  #tempo-redukcji-inline .tempo-energy-stat-done .tempo-energy-icon {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 14%, transparent);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-stat-left .tempo-energy-icon {
+    color: var(--viz-series-2);
+    background: color-mix(in srgb, var(--viz-series-2) 15%, transparent);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-stat-date .tempo-energy-icon {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-label,
+  #tempo-redukcji-inline .tempo-energy-detail {
+    display: block;
+    color: var(--muted-foreground);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-value {
+    display: block;
+    margin: 2px 0 1px;
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #tempo-redukcji-inline .tempo-journey {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 7px;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-summary strong {
+    color: var(--green);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-track {
+    position: relative;
+    height: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--muted);
+  }
+
+  #tempo-redukcji-inline .tempo-journey-fill {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--primary), var(--green));
+    transition: width 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #tempo-redukcji-inline .tempo-journey-marker {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border: 2px solid var(--background);
+    border-radius: var(--radius-full);
+    color: var(--primary-foreground);
+    background: var(--green);
+    box-shadow: var(--shadow-sm);
+    transform: translate(-50%, -50%);
+    transition: left 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #tempo-redukcji-inline .tempo-journey-marker svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-labels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    color: var(--muted-foreground);
+  }
+
+  #tempo-redukcji-inline .tempo-journey-labels span {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-labels span:nth-child(2) {
+    align-items: center;
+    text-align: center;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-labels span:last-child {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-labels b {
+    color: var(--foreground);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #tempo-redukcji-inline .tempo-journey-labels small {
+    color: var(--muted-foreground);
+  }
+
+  #tempo-redukcji-inline .tempo-energy-note {
+    position: relative;
+    z-index: 1;
+    margin: 0;
   }
 
   #tempo-redukcji-inline .tempo-stat-label {
@@ -1316,6 +1580,91 @@ html&gt;body{padding:0}&lt;/style&gt;
     justify-content: space-between;
   }
 
+  @media (min-width: 981px) {
+    #tempo-redukcji-inline .tempo-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(350px, 0.95fr);
+      grid-template-areas:
+        &quot;head head&quot;
+        &quot;stats stats&quot;
+        &quot;stage energy&quot;
+        &quot;legend energy&quot;
+        &quot;meter energy&quot;
+        &quot;hint energy&quot;;
+      grid-template-rows: auto auto minmax(330px, 1fr) auto auto auto;
+      column-gap: 18px;
+    }
+
+    #tempo-redukcji-inline .tempo-head {
+      grid-area: head;
+    }
+
+    #tempo-redukcji-inline .tempo-stats {
+      grid-area: stats;
+    }
+
+    #tempo-redukcji-inline .tempo-energy {
+      grid-area: energy;
+      align-self: stretch;
+      align-content: start;
+    }
+
+    #tempo-redukcji-inline .tempo-energy-grid {
+      grid-template-columns: 1fr;
+    }
+
+    #tempo-redukcji-inline .tempo-stage {
+      grid-area: stage;
+      min-height: 330px;
+    }
+
+    #tempo-redukcji-inline .tempo-legend {
+      grid-area: legend;
+    }
+
+    #tempo-redukcji-inline .tempo-pace-meter {
+      grid-area: meter;
+    }
+
+    #tempo-redukcji-inline .tempo-hint {
+      grid-area: hint;
+    }
+  }
+
+  @media (max-width: 760px) {
+    #tempo-redukcji-inline {
+      height: auto;
+      min-height: 100%;
+    }
+
+    #tempo-redukcji-inline .tempo-energy-grid {
+      grid-template-columns: 1fr;
+    }
+
+    #tempo-redukcji-inline .tempo-energy-head {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    #tempo-redukcji-inline .tempo-energy-model {
+      align-self: flex-start;
+    }
+  }
+
+  @media (max-width: 430px) {
+    #tempo-redukcji-inline .tempo-card {
+      padding: 12px;
+    }
+
+    #tempo-redukcji-inline .tempo-energy {
+      padding: 12px;
+    }
+
+    #tempo-redukcji-inline .tempo-journey-labels small {
+      display: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     #tempo-redukcji-inline .tempo-point {
       transition: none;
@@ -1403,6 +1752,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     }
   }, 10000);
   const targetWeight = 85;
+  const journeyStartDate = &#x27;2026-07-16&#x27;;
+  const energyPerKilogram = 7700;
   const parseDate = (value) =&gt; new Date(`${value}T12:00:00`);
   const dateKey = (date) =&gt; date.toISOString().slice(0, 10);
   const addDays = (date, days) =&gt; new Date(date.getTime() + days * 86400000);
@@ -1415,7 +1766,17 @@ html&gt;body{padding:0}&lt;/style&gt;
   const weeklyLoss = (planStartWeight - targetWeight) / planDurationWeeks;
   const latestActual = weeklyActual.at(-1);
   const latestDaily = dailyMeasurements.at(-1);
+  const journeyStartMeasurement = dailyMeasurements.find(
+    (point) =&gt; point.date === journeyStartDate
+  );
+  if (journeyStartMeasurement == null) {
+    showDataError(&#x27;Brak pomiaru startowego potrzebnego do obliczenia bilansu energii.&#x27;);
+    return;
+  }
+  const journeyStartWeight = journeyStartMeasurement.weight;
   const formatWeight = (value) =&gt; `${value.toFixed(1).replace(&#x27;.&#x27;, &#x27;,&#x27;)} kg`;
+  const formatEnergy = (value) =&gt;
+    `${new Intl.NumberFormat(&#x27;pl-PL&#x27;, { maximumFractionDigits: 0 }).format(value)} kcal`;
   const formatDate = (value) =&gt; new Intl.DateTimeFormat(&#x27;pl-PL&#x27;, {
     day: &#x27;numeric&#x27;, month: &#x27;long&#x27;, year: &#x27;numeric&#x27;
   }).format(parseDate(value));
@@ -1451,6 +1812,26 @@ html&gt;body{padding:0}&lt;/style&gt;
     const paceStart = paceWindowPoints[0];
     const paceElapsedDays = Math.max(1, (parseDate(latestActual.date) - parseDate(paceStart.date)) / 86400000);
     recentPaceWeekly = ((latestActual.weight - paceStart.weight) / paceElapsedDays) * 7;
+  }
+  const lostSinceJourneyStart = Math.max(0, journeyStartWeight - latestDaily.weight);
+  const remainingFromLatestDaily = Math.max(0, latestDaily.weight - targetWeight);
+  const energyBurnedEquivalent = Math.round(lostSinceJourneyStart * energyPerKilogram);
+  const energyRemainingEquivalent = Math.round(remainingFromLatestDaily * energyPerKilogram);
+  const journeyProgress = Math.max(0, Math.min(
+    100,
+    (lostSinceJourneyStart / (journeyStartWeight - targetWeight)) * 100
+  ));
+  let estimatedGoalDate = null;
+  let estimatedWeeksToGoal = null;
+  if (latestActual.weight &lt;= targetWeight) {
+    estimatedGoalDate = latestActual.date;
+    estimatedWeeksToGoal = 0;
+  } else if (recentPaceWeekly != null &amp;&amp; recentPaceWeekly &lt; -0.05) {
+    estimatedWeeksToGoal = (latestActual.weight - targetWeight) / Math.abs(recentPaceWeekly);
+    estimatedGoalDate = dateKey(addDays(
+      parseDate(latestActual.date),
+      Math.ceil(estimatedWeeksToGoal * 7)
+    ));
   }
   const width = 720;
   const height = 390;
@@ -1858,6 +2239,19 @@ html&gt;body{padding:0}&lt;/style&gt;
     const paceEl = document.getElementById(&#x27;stat-pace&#x27;);
     const planProgressEl = document.getElementById(&#x27;stat-plan-progress&#x27;);
     const planDetailEl = document.getElementById(&#x27;stat-plan-detail&#x27;);
+    const energyBurnedEl = document.getElementById(&#x27;stat-energy-burned&#x27;);
+    const energyBurnedDetailEl = document.getElementById(&#x27;stat-energy-burned-detail&#x27;);
+    const energyRemainingEl = document.getElementById(&#x27;stat-energy-remaining&#x27;);
+    const energyRemainingDetailEl = document.getElementById(&#x27;stat-energy-remaining-detail&#x27;);
+    const estimatedDateEl = document.getElementById(&#x27;stat-estimated-date&#x27;);
+    const estimatedDateDetailEl = document.getElementById(&#x27;stat-estimated-date-detail&#x27;);
+    const journeyProgressEl = document.getElementById(&#x27;stat-journey-progress&#x27;);
+    const journeyStartEl = document.getElementById(&#x27;stat-journey-start&#x27;);
+    const journeyCurrentEl = document.getElementById(&#x27;stat-journey-current&#x27;);
+    const journeyGoalEl = document.getElementById(&#x27;stat-journey-goal&#x27;);
+    const journeyTrack = document.getElementById(&#x27;tempo-journey-track&#x27;);
+    const journeyFill = document.getElementById(&#x27;tempo-journey-fill&#x27;);
+    const journeyMarker = document.getElementById(&#x27;tempo-journey-marker&#x27;);
     const chip = document.getElementById(&#x27;tempo-pace-chip&#x27;);
     const chipText = document.getElementById(&#x27;tempo-pace-chip-text&#x27;);
     const paceFill = document.getElementById(&#x27;tempo-pace-fill&#x27;);
@@ -1877,6 +2271,34 @@ html&gt;body{padding:0}&lt;/style&gt;
       : &#x27;Zgodnie z planem&#x27;;
     planProgressEl.textContent = planPosition;
     planDetailEl.textContent = `${formatSignedWeight(planDifference)} względem ${formatWeight(plannedWeightAtLatest)} na ${formatShortDate(latestActual.date)}`;
+
+    energyBurnedEl.textContent = formatEnergy(energyBurnedEquivalent);
+    energyBurnedDetailEl.textContent = `${formatWeight(lostSinceJourneyStart)} mniej od ${formatWeight(journeyStartWeight)}`;
+    energyRemainingEl.textContent = formatEnergy(energyRemainingEquivalent);
+    energyRemainingDetailEl.textContent = `${formatWeight(remainingFromLatestDaily)} od ostatniego pomiaru do ${formatWeight(targetWeight)}`;
+    journeyProgressEl.textContent = `${journeyProgress.toFixed(1).replace(&#x27;.&#x27;, &#x27;,&#x27;)}%`;
+    journeyStartEl.textContent = formatWeight(journeyStartWeight);
+    journeyCurrentEl.textContent = formatWeight(latestDaily.weight);
+    journeyGoalEl.textContent = formatWeight(targetWeight);
+    journeyTrack.setAttribute(&#x27;aria-valuenow&#x27;, Math.round(journeyProgress).toString());
+    journeyTrack.setAttribute(&#x27;aria-valuetext&#x27;, `${journeyProgress.toFixed(1).replace(&#x27;.&#x27;, &#x27;,&#x27;)} procent drogi do celu`);
+    journeyTrack.setAttribute(&#x27;aria-label&#x27;, `Postęp redukcji od ${formatWeight(journeyStartWeight)} do ${formatWeight(targetWeight)}`);
+    const visualJourneyProgress = Math.max(1.5, Math.min(98.5, journeyProgress));
+    requestAnimationFrame(() =&gt; {
+      journeyFill.style.width = `${journeyProgress}%`;
+      journeyMarker.style.left = `${visualJourneyProgress}%`;
+    });
+
+    if (estimatedGoalDate == null) {
+      estimatedDateEl.textContent = &#x27;Brak estymacji&#x27;;
+      estimatedDateDetailEl.textContent = &#x27;Potrzebny spadkowy trend średnich tygodniowych&#x27;;
+    } else if (estimatedWeeksToGoal === 0) {
+      estimatedDateEl.textContent = &#x27;Cel osiągnięty&#x27;;
+      estimatedDateDetailEl.textContent = formatDate(estimatedGoalDate);
+    } else {
+      estimatedDateEl.textContent = formatDate(estimatedGoalDate);
+      estimatedDateDetailEl.textContent = `${estimatedWeeksToGoal.toFixed(1).replace(&#x27;.&#x27;, &#x27;,&#x27;)} tyg. przy obecnym tempie`;
+    }
 
     const status = paceStatus(recentPaceWeekly);
     const statusClass = status === &#x27;ahead&#x27; ? &#x27;is-ahead&#x27;
