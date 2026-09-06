@@ -48,7 +48,7 @@ jobs:
   synchronizuj:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -92,7 +92,7 @@ jobs:
           echo "activity_days=$activity_days" >> "$GITHUB_OUTPUT"
           echo "weight_days=$weight_days" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         if: steps.scope.outputs.run == 'true'
         with:
           python-version: "3.12"
