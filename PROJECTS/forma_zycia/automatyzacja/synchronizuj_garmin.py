@@ -12,10 +12,11 @@ import argparse
 import csv
 import fcntl
 import getpass
+import hashlib
 import json
 import os
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from statistics import mean
@@ -33,6 +34,10 @@ DEFAULT_LOCK_FILE = (
     Path.home() / "Library" / "Application Support" / "KrystianOS" / "garmin" / "sync.lock"
 )
 WARSAW = ZoneInfo("Europe/Warsaw")
+TOKEN_FILE_NAME = "garmin_tokens.json"
+# Stabilny znacznik dla workflow: pozwala zamienić komunikat na ostrzeżenie
+# GitHub Actions bez parsowania polskiego tekstu.
+TOKEN_REFRESHED_MARKER = "garmin-token-refreshed"
 
 WEIGHT_COLUMNS = (
     "data",
@@ -173,6 +178,82 @@ def secure_token_store(path: Path) -> None:
             token_file.chmod(0o600)
 
 
+def fingerprint_payload(payload: str) -> str | None:
+    """Skrót tokenu odporny na kolejność kluczy; nie ujawnia jego treści."""
+    try:
+        data = json.loads(payload)
+    except (TypeError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+
+
+def stored_token_fingerprint(token_store: Path) -> str | None:
+    """Skrót tokenu leżącego na dysku, czyli tego, który został wczytany."""
+    path = token_store.expanduser() / TOKEN_FILE_NAME
+    if not path.is_file():
+        return None
+    try:
+        return fingerprint_payload(path.read_text(encoding="utf-8"))
+    except OSError:
+        return None
+
+
+def session_token_fingerprint(client: Any) -> str | None:
+    """Skrót tokenu, którego klient używa po ewentualnym odświeżeniu."""
+    inner = getattr(client, "client", None)
+    dumps = getattr(inner, "dumps", None)
+    if not callable(dumps):
+        return None
+    try:
+        return fingerprint_payload(dumps())
+    except Exception:
+        return None
+
+
+def persist_token(client: Any, token_store: Path) -> bool:
+    """Zapisuje odświeżony token, aby kolejne uruchomienie z niego skorzystało."""
+    inner = getattr(client, "client", None)
+    dump = getattr(inner, "dump", None)
+    if not callable(dump):
+        return False
+    token_store = token_store.expanduser()
+    try:
+        dump(str(token_store))
+    except Exception:
+        return False
+    with suppress(OSError):
+        secure_token_store(token_store)
+    return True
+
+
+def report_token_state(
+    client: Any, token_store: Path, stored_fingerprint: str | None
+) -> None:
+    """Utrwala odświeżony token i mówi wprost, że kopia w sekrecie jest stara.
+
+    Biblioteka odświeża token w pamięci, ale zapisuje go na dysk wyłącznie po
+    logowaniu hasłem. Bez tego kroku odświeżony token ginie razem z procesem, a
+    w GitHub Actions także razem z maszyną.
+    """
+    current = session_token_fingerprint(client)
+    if current is None or current == stored_fingerprint:
+        return
+    persisted = persist_token(client, token_store)
+    where = (
+        "Kopia lokalna została zaktualizowana"
+        if persisted
+        else "Nie udało się zapisać kopii lokalnej"
+    )
+    print(
+        f"Garmin: token został odświeżony ({TOKEN_REFRESHED_MARKER}). {where}. "
+        "Sekret GARMIN_TOKENS_JSON_B64 pochodzi sprzed odświeżenia — odnów go "
+        "zgodnie z sekcją „Odnawianie tokenu” w README."
+    )
+
+
 def connect_to_garmin(token_store: Path, initialize_auth: bool) -> Any:
     """Zwraca klienta Garmin bez wypisywania danych uwierzytelniających."""
     try:
@@ -243,6 +324,14 @@ def format_fixed(value: float | None, decimals: int = 1) -> str:
     return f"{float(value):.{decimals}f}"
 
 
+def format_change(value: float) -> str:
+    """Zmiana masy z jednym miejscem po przecinku; zero zawsze bez minusa."""
+    rounded = round(value, 1)
+    if rounded == 0:
+        rounded = 0.0
+    return format_fixed(rounded, 1)
+
+
 def normalise_activity(record: dict[str, Any]) -> dict[str, str]:
     activity_id = first_value(record, "activityId", "activity_id", "id")
     if activity_id is None:
@@ -304,10 +393,16 @@ def read_activities(path: Path) -> dict[str, dict[str, str]]:
 
 def merge_activities(
     existing: dict[str, dict[str, str]], records: list[dict[str, Any]]
-) -> int:
+) -> tuple[int, list[str]]:
+    """Scala rekordy Garmina; wadliwy rekord pomija zamiast przerywać całość."""
     changed = 0
+    problems: list[str] = []
     for record in records:
-        row = normalise_activity(record)
+        try:
+            row = normalise_activity(record)
+        except (TypeError, ValueError) as error:
+            problems.append(f"pominięto aktywność: {error}")
+            continue
         activity_id = row["activity_id"]
         previous = existing.get(activity_id)
         if previous is not None:
@@ -317,7 +412,7 @@ def merge_activities(
         if previous != row:
             existing[activity_id] = row
             changed += 1
-    return changed
+    return changed, problems
 
 
 def atomic_write_csv(
@@ -365,13 +460,15 @@ def load_bootstrap_records(directory: Path) -> list[dict[str, Any]]:
     return records
 
 
-def bootstrap_activities(source: Path, target: Path, dry_run: bool) -> tuple[int, int]:
+def bootstrap_activities(
+    source: Path, target: Path, dry_run: bool
+) -> tuple[int, int, list[str]]:
     records = load_bootstrap_records(source)
     activities = read_activities(target)
-    changed = merge_activities(activities, records)
+    changed, problems = merge_activities(activities, records)
     if changed and not dry_run:
         write_activities(target, activities)
-    return len(records), changed
+    return len(records), changed, problems
 
 
 def parse_local_date(value: Any) -> tuple[date, datetime]:
@@ -426,7 +523,7 @@ def normalise_measurement(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def extract_measurements(response: Any) -> list[dict[str, Any]]:
+def extract_measurements(response: Any) -> tuple[list[dict[str, Any]], list[str]]:
     if isinstance(response, list):
         records = response
     elif isinstance(response, dict):
@@ -448,14 +545,23 @@ def extract_measurements(response: Any) -> list[dict[str, Any]]:
         raise RuntimeError("Odpowiedź Garmin nie zawiera listy pomiarów wagi.")
 
     by_date: dict[str, dict[str, Any]] = {}
+    problems: list[str] = []
     for record in records:
         if not isinstance(record, dict):
             continue
-        measurement = normalise_measurement(record)
+        try:
+            measurement = normalise_measurement(record)
+        except (TypeError, ValueError) as error:
+            problems.append(f"pominięto pomiar wagi: {error}")
+            continue
         existing = by_date.get(measurement["data"])
         if existing is None or measurement["timestamp"] > existing["timestamp"]:
             by_date[measurement["data"]] = measurement
-    return [by_date[key] for key in sorted(by_date)]
+    if problems and not by_date:
+        raise RuntimeError(
+            "Żaden pomiar wagi z Garmina nie nadawał się do zapisu: " + problems[0]
+        )
+    return [by_date[key] for key in sorted(by_date)], problems
 
 
 def read_weight_rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
@@ -512,10 +618,44 @@ def update_daily_rows(
     return changed
 
 
-def update_last_completed_week(
-    rows: list[dict[str, str]], headers: list[str], today: date
-) -> int:
-    week_end = today - timedelta(days=(today.weekday() - 5) % 7)
+def window_start_date(today: date, days: int) -> date:
+    return today - timedelta(days=max(days, 1) - 1)
+
+
+def completed_week_ends(today: date, days: int) -> list[date]:
+    """Soboty kończące tygodnie objęte oknem synchronizacji, od najstarszej.
+
+    Ostatni zamknięty tydzień jest liczony zawsze, także gdy okno jest krótsze
+    niż tydzień. Wcześniejsze tygodnie z okna wracają na listę, aby pomiar
+    dosłany z opóźnieniem uzupełnił średnią, która wcześniej nie powstała.
+    """
+    last_end = today - timedelta(days=(today.weekday() - 5) % 7)
+    limit = window_start_date(today, days)
+    ends = [last_end]
+    week_end = last_end - timedelta(days=7)
+    while week_end >= limit:
+        ends.append(week_end)
+        week_end -= timedelta(days=7)
+    return sorted(ends)
+
+
+def find_weekly_row(rows: list[dict[str, str]], week_end: date) -> dict[str, str] | None:
+    """Wiersz średniej tygodniowej kończącej się danego dnia, jeśli istnieje."""
+    target = week_end.isoformat()
+    matching = [
+        row
+        for row in rows
+        if row.get("typ_rekordu") == "srednia_tygodniowa"
+        and (row.get("okres_do") or row.get("data")) == target
+    ]
+    if len(matching) > 1:
+        raise RuntimeError(
+            f"DATA/waga.csv ma więcej niż jedną średnią dla tygodnia do {week_end}."
+        )
+    return matching[0] if matching else None
+
+
+def update_week(rows: list[dict[str, str]], headers: list[str], week_end: date) -> int:
     week_start = week_end - timedelta(days=6)
     daily_weights = [
         float(row["waga_kg"])
@@ -526,24 +666,14 @@ def update_last_completed_week(
     ]
     if len(daily_weights) < 3:
         return 0
-    matching = [
-        row
-        for row in rows
-        if row.get("typ_rekordu") == "srednia_tygodniowa"
-        and row.get("okres_do") == week_end.isoformat()
-    ]
-    if len(matching) > 1:
-        raise RuntimeError(
-            f"DATA/waga.csv ma więcej niż jedną średnią dla tygodnia do {week_end}."
-        )
-    previous = [
-        float(row["waga_kg"])
-        for row in rows
-        if row.get("typ_rekordu") == "srednia_tygodniowa"
-        and row.get("data", "") < week_end.isoformat()
-        and row.get("waga_kg")
-    ]
     weekly_weight = round(mean(daily_weights), 1)
+    # Zmiana ma sens tylko względem tygodnia bezpośrednio poprzedzającego.
+    # Gdy poprzedni tydzień nie ma średniej, puste pole mówi prawdę, a liczba
+    # rozpięta na dwa tygodnie udawałaby tygodniowy postęp.
+    previous_row = find_weekly_row(rows, week_end - timedelta(days=7))
+    change = ""
+    if previous_row is not None and previous_row.get("waga_kg"):
+        change = format_change(weekly_weight - float(previous_row["waga_kg"]))
     updated = {
         "data": week_end.isoformat(),
         "waga_kg": format_fixed(weekly_weight, 1),
@@ -552,11 +682,10 @@ def update_last_completed_week(
         "typ_rekordu": "srednia_tygodniowa",
         "okres_od": week_start.isoformat(),
         "okres_do": week_end.isoformat(),
-        "zmiana_kg": format_fixed(weekly_weight - previous[-1], 1) if previous else "",
+        "zmiana_kg": change,
     }
-    if matching:
-        row = matching[0]
-    else:
+    row = find_weekly_row(rows, week_end)
+    if row is None:
         row = {column: "" for column in headers}
         rows.append(row)
     if any(row.get(key, "") != value for key, value in updated.items()):
@@ -565,37 +694,86 @@ def update_last_completed_week(
     return 0
 
 
+def update_weekly_averages(
+    rows: list[dict[str, str]], headers: list[str], today: date, days: int
+) -> int:
+    changed = 0
+    for week_end in completed_week_ends(today, days):
+        changed += update_week(rows, headers, week_end)
+    return changed
+
+
+def refresh_daily_changes(rows: list[dict[str, str]], today: date, days: int) -> int:
+    """Uzupełnia zmianę dzień do dnia w oknie synchronizacji.
+
+    Kolumna „zmiana_kg” w wierszach dziennych była wcześniej wypełniana ręcznie,
+    więc rekordy dopisane przez synchronizację zostawiały w niej lukę.
+    """
+    limit = window_start_date(today, days)
+    by_date = {
+        row["data"]: row
+        for row in rows
+        if row.get("typ_rekordu") == "pomiar_dzienny" and row.get("data")
+    }
+    changed = 0
+    for text, row in by_date.items():
+        try:
+            day = date.fromisoformat(text)
+        except ValueError:
+            continue
+        if not limit <= day <= today or not row.get("waga_kg"):
+            continue
+        previous = by_date.get((day - timedelta(days=1)).isoformat())
+        if previous is None or not previous.get("waga_kg"):
+            continue
+        change = format_change(float(row["waga_kg"]) - float(previous["waga_kg"]))
+        if row.get("zmiana_kg", "") != change:
+            row["zmiana_kg"] = change
+            changed += 1
+    return changed
+
+
 def write_weight_rows(
     path: Path, headers: list[str], rows: list[dict[str, str]]
 ) -> None:
     atomic_write_csv(path, tuple(headers), rows)
 
 
-def sync_activities(client: Any, days: int, path: Path, dry_run: bool) -> tuple[int, int]:
+def sync_activities(
+    client: Any, days: int, path: Path, dry_run: bool
+) -> tuple[int, int, list[str]]:
     today = datetime.now(WARSAW).date()
-    start = today - timedelta(days=days - 1)
+    start = window_start_date(today, days)
     records = client.get_activities_by_date(start.isoformat(), today.isoformat())
     if not isinstance(records, list):
         raise RuntimeError("Odpowiedź Garmin nie zawiera listy aktywności.")
+    usable = [item for item in records if isinstance(item, dict)]
     activities = read_activities(path)
-    changed = merge_activities(activities, [item for item in records if isinstance(item, dict)])
+    changed, problems = merge_activities(activities, usable)
+    if usable and len(problems) == len(usable):
+        raise RuntimeError(
+            "Żadna aktywność z Garmina nie nadawała się do zapisu: " + problems[0]
+        )
     if changed and not dry_run:
         write_activities(path, activities)
-    return len(records), changed
+    return len(records), changed, problems
 
 
-def sync_weight(client: Any, days: int, path: Path, dry_run: bool) -> tuple[int, int, int]:
+def sync_weight(
+    client: Any, days: int, path: Path, dry_run: bool
+) -> tuple[int, int, int, list[str]]:
     today = datetime.now(WARSAW).date()
     response = client.get_weigh_ins(
-        (today - timedelta(days=days - 1)).isoformat(), today.isoformat()
+        window_start_date(today, days).isoformat(), today.isoformat()
     )
-    measurements = extract_measurements(response)
+    measurements, problems = extract_measurements(response)
     headers, rows = read_weight_rows(path)
     updated_daily = update_daily_rows(rows, headers, measurements)
-    updated_weekly = update_last_completed_week(rows, headers, today)
+    updated_daily += refresh_daily_changes(rows, today, days)
+    updated_weekly = update_weekly_averages(rows, headers, today, days)
     if updated_daily + updated_weekly and not dry_run:
         write_weight_rows(path, headers, rows)
-    return len(measurements), updated_daily, updated_weekly
+    return len(measurements), updated_daily, updated_weekly, problems
 
 
 def describe_error(error: Exception) -> str:
@@ -608,12 +786,24 @@ def describe_error(error: Exception) -> str:
     return text or error.__class__.__name__
 
 
+def report_problems(problems: list[str]) -> None:
+    """Wypisuje pominięte rekordy, żeby cichy brak danych był widoczny w logu."""
+    if not problems:
+        return
+    print(
+        f"Garmin: pominięto {len(problems)} wadliwych rekordów.",
+        file=sys.stderr,
+    )
+    for problem in problems:
+        print(f"  - {problem}", file=sys.stderr)
+
+
 def main() -> int:
     arguments = parse_arguments()
     try:
         with exclusive_lock(arguments.lock_file):
             if arguments.mode == "bootstrap":
-                total, changed = bootstrap_activities(
+                total, changed, problems = bootstrap_activities(
                     arguments.bootstrap_from.expanduser().resolve(),
                     arguments.activities_data,
                     arguments.dry_run,
@@ -622,35 +812,43 @@ def main() -> int:
                     f"Garmin bootstrap: odczytano {total} aktywności; "
                     f"dodano lub zmieniono {changed}."
                 )
+                report_problems(problems)
                 return 0
 
             client = connect_to_garmin(arguments.token_store, arguments.initialize_auth)
+            stored_fingerprint = stored_token_fingerprint(arguments.token_store)
             if arguments.mode == "auth":
                 activities = client.get_activities(start=0, limit=1)
                 if not isinstance(activities, (list, dict)):
                     raise RuntimeError("Garmin zwrócił nieoczekiwany wynik testu sesji.")
                 print("Garmin: sesja działa; token pozostaje wyłącznie lokalnie.")
+                report_token_state(client, arguments.token_store, stored_fingerprint)
                 return 0
 
+            problems: list[str] = []
             if arguments.mode in ("activities", "all"):
-                total, changed = sync_activities(
+                total, changed, activity_problems = sync_activities(
                     client,
                     arguments.activity_days,
                     arguments.activities_data,
                     arguments.dry_run,
                 )
+                problems += activity_problems
                 print(
                     f"Garmin aktywności: sprawdzono {total}; "
                     f"dodano lub zmieniono {changed}."
                 )
             if arguments.mode in ("weight", "all"):
-                total, updated_daily, updated_weekly = sync_weight(
+                total, updated_daily, updated_weekly, weight_problems = sync_weight(
                     client, arguments.days, arguments.weight_data, arguments.dry_run
                 )
+                problems += weight_problems
                 print(
                     f"Garmin waga: sprawdzono {total} pomiarów; zmieniono "
                     f"{updated_daily} dziennych i {updated_weekly} tygodniowych rekordów."
                 )
+            report_token_state(client, arguments.token_store, stored_fingerprint)
+            report_problems(problems)
     except AlreadyRunningError as error:
         print(f"Garmin: pominięto uruchomienie, bo {error}.")
         return 0

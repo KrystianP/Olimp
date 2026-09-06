@@ -33,3 +33,13 @@ Przed kolejnym planem należy odczytać bieżące zadania i aktualne pomiary.
   utworzył commita, ponieważ kanoniczne CSV były już aktualne. Pierwszy bieg
   wywołany harmonogramem pozostaje osobnym potwierdzeniem automatycznego
   wyzwalania.
+- Wybór zakresu w harmonogramie porównywał wcześniej bieżącą godzinę z
+  rozkładem co do minuty. Kolejka GitHuba opóźnia biegi o kilkanaście minut,
+  więc taki warunek pomijałby niemal każde uruchomienie, kończąc je sukcesem
+  bez pobrania danych. Od 06.09.2026 o zakresie decyduje wpis crona, który
+  wyzwolił bieg; zegar rozstrzyga już tylko czas letni albo zimowy.
+- Token lokalny został utworzony 06.09.2026 i tę datę przyjmujemy za wiek
+  sekretu `GARMIN_TOKENS_JSON_B64`. Sekret nie odnawia się sam: gdy Garmin
+  odświeży token, bieg w Actions kończy się ostrzeżeniem i trzeba wykonać
+  „Odnawianie tokenu” z `automatyzacja/README.md`. Datę faktycznego odnowienia
+  wpisuj w tym miejscu.

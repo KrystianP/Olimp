@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import csv
+import io
 import json
 import sys
 import tempfile
@@ -16,9 +18,36 @@ import synchronizuj_garmin as sync  # noqa: E402
 WEIGHT_HEADERS = list(sync.WEIGHT_COLUMNS)
 
 
+class StubInnerGarminClient:
+    """Minimalny odpowiednik klienta biblioteki: serializuje i zapisuje token."""
+
+    def __init__(self, payload: str) -> None:
+        self.payload = payload
+        self.dumped: str | None = None
+
+    def dumps(self) -> str:
+        return self.payload
+
+    def dump(self, path: str) -> None:
+        self.dumped = path
+
+
+class StubGarminClient:
+    def __init__(self, payload: str) -> None:
+        self.client = StubInnerGarminClient(payload)
+
+
+
+def daily(day: str, weight: str) -> dict[str, str]:
+    """Wiersz pomiaru dziennego wypełniony tak, jak zapisuje go synchronizacja."""
+    row = {header: "" for header in WEIGHT_HEADERS}
+    row.update({"data": day, "waga_kg": weight, "typ_rekordu": "pomiar_dzienny"})
+    return row
+
+
 class SynchronizacjaGarminTest(unittest.TestCase):
     def test_extract_measurements_keeps_the_latest_measurement_per_day(self) -> None:
-        measurements = sync.extract_measurements(
+        measurements, problems = sync.extract_measurements(
             {
                 "dateWeightList": [
                     {
@@ -37,12 +66,13 @@ class SynchronizacjaGarminTest(unittest.TestCase):
             }
         )
 
+        self.assertEqual(problems, [])
         self.assertEqual(len(measurements), 1)
         self.assertEqual(measurements[0]["data"], "2026-08-16")
         self.assertEqual(measurements[0]["waga_kg"], 101.4)
 
     def test_extract_measurements_supports_current_garmin_summary_format(self) -> None:
-        measurements = sync.extract_measurements(
+        measurements, _ = sync.extract_measurements(
             {
                 "dailyWeightSummaries": [
                     {
@@ -100,8 +130,8 @@ class SynchronizacjaGarminTest(unittest.TestCase):
                 }
             ],
         )
-        weekly_changed = sync.update_last_completed_week(
-            rows, WEIGHT_HEADERS, date(2026, 8, 16)
+        weekly_changed = sync.update_weekly_averages(
+            rows, WEIGHT_HEADERS, date(2026, 8, 16), 14
         )
 
         self.assertEqual(changed, 1)
@@ -211,9 +241,11 @@ class SynchronizacjaGarminTest(unittest.TestCase):
         }
         rows: dict[str, dict[str, str]] = {}
 
-        self.assertEqual(sync.merge_activities(rows, [record]), 1)
-        self.assertEqual(sync.merge_activities(rows, [record]), 0)
-        self.assertEqual(sync.merge_activities(rows, [{**record, "duration": 1900}]), 1)
+        self.assertEqual(sync.merge_activities(rows, [record]), (1, []))
+        self.assertEqual(sync.merge_activities(rows, [record]), (0, []))
+        self.assertEqual(
+            sync.merge_activities(rows, [{**record, "duration": 1900}]), (1, [])
+        )
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows["123"]["duration_seconds"], "1900")
 
@@ -227,7 +259,7 @@ class SynchronizacjaGarminTest(unittest.TestCase):
             }
         )
         rows = {"123": original}
-        changed = sync.merge_activities(
+        changed, problems = sync.merge_activities(
             rows,
             [
                 {
@@ -238,7 +270,7 @@ class SynchronizacjaGarminTest(unittest.TestCase):
             ],
         )
 
-        self.assertEqual(changed, 0)
+        self.assertEqual((changed, problems), (0, []))
         self.assertEqual(rows["123"]["training_load"], "42")
 
     def test_weight_format_keeps_one_decimal_place(self) -> None:
@@ -302,12 +334,200 @@ class SynchronizacjaGarminTest(unittest.TestCase):
             )
             target = root / "aktywnosci.csv"
 
-            total, changed = sync.bootstrap_activities(source, target, False)
+            total, changed, problems = sync.bootstrap_activities(source, target, False)
             rows = sync.read_activities(target)
 
-        self.assertEqual((total, changed), (1, 1))
+        self.assertEqual((total, changed, problems), (1, 1, []))
         self.assertEqual(rows["123"]["training_load"], "42")
         self.assertEqual(list(rows["123"]), list(sync.ACTIVITY_COLUMNS))
+
+    # -- odporność na pojedynczy wadliwy rekord ------------------------------
+
+    def test_one_broken_measurement_does_not_lose_the_healthy_ones(self) -> None:
+        measurements, problems = sync.extract_measurements(
+            {
+                "dateWeightList": [
+                    {"dateTimestampLocal": "2026-08-16T06:15:00", "weight": 101400},
+                    {"dateTimestampLocal": "2026-08-17T06:15:00", "weight": 4200},
+                    {"dateTimestampLocal": "2026-08-18T06:15:00", "weight": 101200},
+                ]
+            }
+        )
+
+        self.assertEqual([item["data"] for item in measurements], ["2026-08-16", "2026-08-18"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("pominięto pomiar wagi", problems[0])
+
+    def test_only_broken_measurements_are_reported_as_a_failure(self) -> None:
+        with self.assertRaises(RuntimeError) as raised:
+            sync.extract_measurements(
+                {"dateWeightList": [{"dateTimestampLocal": "2026-08-17T06:15:00", "weight": 4200}]}
+            )
+
+        self.assertIn("nie nadawał się do zapisu", str(raised.exception))
+
+    def test_an_empty_garmin_window_is_not_an_error(self) -> None:
+        self.assertEqual(sync.extract_measurements({"dateWeightList": []}), ([], []))
+
+    def test_one_broken_activity_does_not_lose_the_healthy_ones(self) -> None:
+        rows: dict[str, dict[str, str]] = {}
+        changed, problems = sync.merge_activities(
+            rows,
+            [
+                {"activityId": 1, "activityType": "running", "startTimeLocal": "2026-08-20 20:30:00"},
+                {"activityType": "running", "startTimeLocal": "2026-08-21 20:30:00"},
+                {"activityId": 3, "activityType": "walking", "startTimeLocal": "2026-08-22 20:30:00"},
+            ],
+        )
+
+        self.assertEqual(changed, 2)
+        self.assertEqual(set(rows), {"1", "3"})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("pominięto aktywność", problems[0])
+
+    # -- średnie tygodniowe ---------------------------------------------------
+
+    def test_completed_week_ends_cover_the_whole_window(self) -> None:
+        self.assertEqual(
+            sync.completed_week_ends(date(2026, 9, 6), 14),
+            [date(2026, 8, 29), date(2026, 9, 5)],
+        )
+        self.assertEqual(
+            sync.completed_week_ends(date(2026, 9, 6), 1), [date(2026, 9, 5)]
+        )
+
+    def test_a_late_measurement_completes_a_week_that_was_skipped_before(self) -> None:
+        rows = [
+            daily(f"2026-08-{day:02}", weight)
+            for day, weight in (
+                (23, "100.0"), (24, "100.0"), (25, "100.0"),
+                (30, "99.0"), (31, "99.0"),
+            )
+        ]
+        rows.append(daily("2026-09-01", "99.0"))
+
+        changed = sync.update_weekly_averages(rows, WEIGHT_HEADERS, date(2026, 9, 6), 14)
+        weekly = {
+            row["okres_do"]: row for row in rows if row["typ_rekordu"] == "srednia_tygodniowa"
+        }
+
+        self.assertEqual(changed, 2)
+        self.assertEqual(weekly["2026-08-29"]["waga_kg"], "100.0")
+        self.assertEqual(weekly["2026-09-05"]["waga_kg"], "99.0")
+        self.assertEqual(weekly["2026-09-05"]["zmiana_kg"], "-1.0")
+
+    def test_weekly_change_stays_empty_when_the_previous_week_is_missing(self) -> None:
+        rows = [
+            daily("2026-08-16", "103.0"),
+            *[daily(f"2026-08-{day:02}", "99.0") for day in (30, 31)],
+            daily("2026-09-01", "99.0"),
+        ]
+
+        sync.update_weekly_averages(rows, WEIGHT_HEADERS, date(2026, 9, 6), 14)
+        weekly = [row for row in rows if row["typ_rekordu"] == "srednia_tygodniowa"]
+
+        self.assertEqual(len(weekly), 1)
+        self.assertEqual(weekly[0]["okres_do"], "2026-09-05")
+        self.assertEqual(weekly[0]["zmiana_kg"], "")
+
+    def test_weekly_change_uses_the_adjacent_week_not_the_last_row_in_the_file(self) -> None:
+        older = {header: "" for header in WEIGHT_HEADERS}
+        older.update(
+            {
+                "data": "2026-08-29",
+                "waga_kg": "100.0",
+                "typ_rekordu": "srednia_tygodniowa",
+                "okres_od": "2026-08-23",
+                "okres_do": "2026-08-29",
+            }
+        )
+        stray = {header: "" for header in WEIGHT_HEADERS}
+        stray.update(
+            {
+                "data": "2026-07-04",
+                "waga_kg": "90.0",
+                "typ_rekordu": "srednia_tygodniowa",
+                "okres_od": "2026-06-28",
+                "okres_do": "2026-07-04",
+            }
+        )
+        rows = [
+            older,
+            *[daily(f"2026-08-{day:02}", "99.0") for day in (30, 31)],
+            daily("2026-09-01", "99.0"),
+            stray,
+        ]
+
+        sync.update_weekly_averages(rows, WEIGHT_HEADERS, date(2026, 9, 6), 7)
+        weekly = [
+            row
+            for row in rows
+            if row["typ_rekordu"] == "srednia_tygodniowa" and row["okres_do"] == "2026-09-05"
+        ]
+
+        self.assertEqual(weekly[0]["zmiana_kg"], "-1.0")
+
+    # -- dzienna zmiana masy --------------------------------------------------
+
+    def test_daily_change_is_filled_for_consecutive_days_only(self) -> None:
+        rows = [
+            daily("2026-09-01", "99.0"),
+            daily("2026-09-04", "99.4"),
+            daily("2026-09-05", "98.8"),
+            daily("2026-09-06", "98.6"),
+        ]
+
+        changed = sync.refresh_daily_changes(rows, date(2026, 9, 6), 14)
+
+        self.assertEqual(changed, 2)
+        self.assertEqual([row["zmiana_kg"] for row in rows], ["", "", "-0.6", "-0.2"])
+
+    def test_daily_change_outside_the_window_is_left_alone(self) -> None:
+        rows = [daily("2026-08-01", "99.0"), daily("2026-08-02", "98.5")]
+
+        self.assertEqual(sync.refresh_daily_changes(rows, date(2026, 9, 6), 14), 0)
+        self.assertEqual([row["zmiana_kg"] for row in rows], ["", ""])
+
+    def test_no_change_is_written_without_a_negative_zero(self) -> None:
+        self.assertEqual(sync.format_change(-0.04), "0.0")
+        self.assertEqual(sync.format_change(0.0), "0.0")
+        self.assertEqual(sync.format_change(-0.65), "-0.7")
+
+    # -- token ----------------------------------------------------------------
+
+    def test_token_fingerprint_ignores_key_order_and_hides_the_token(self) -> None:
+        first = sync.fingerprint_payload('{"di_token": "sekret", "di_refresh_token": "b"}')
+        second = sync.fingerprint_payload('{"di_refresh_token": "b", "di_token": "sekret"}')
+
+        self.assertEqual(first, second)
+        self.assertEqual(len(str(first)), 12)
+        self.assertNotIn("sekret", str(first))
+        self.assertNotEqual(
+            first, sync.fingerprint_payload('{"di_token": "inny", "di_refresh_token": "b"}')
+        )
+        self.assertIsNone(sync.fingerprint_payload("nie-json"))
+
+    def test_a_refreshed_token_is_saved_and_reported_once(self) -> None:
+        client = StubGarminClient('{"di_token": "nowy", "di_refresh_token": "nowy"}')
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            token_store = Path(temporary_directory) / "garmin"
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                sync.report_token_state(client, token_store, "odcisk-sprzed")
+
+            self.assertEqual(client.client.dumped, str(token_store))
+            self.assertIn(sync.TOKEN_REFRESHED_MARKER, output.getvalue())
+            self.assertNotIn("nowy", output.getvalue())
+
+    def test_an_unchanged_token_is_neither_saved_nor_reported(self) -> None:
+        payload = '{"di_token": "ten-sam"}'
+        client = StubGarminClient(payload)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            sync.report_token_state(client, Path("/nieistotne"), sync.fingerprint_payload(payload))
+
+        self.assertIsNone(client.client.dumped)
+        self.assertEqual(output.getvalue(), "")
 
 
 if __name__ == "__main__":

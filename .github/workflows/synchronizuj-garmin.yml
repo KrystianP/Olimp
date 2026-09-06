@@ -49,13 +49,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Wybierz zakres właściwy dla czasu Warszawy
         id: scope
         env:
           EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
           REQUESTED_MODE: ${{ inputs.mode }}
           REQUESTED_ACTIVITY_DAYS: ${{ inputs.activity_days }}
           REQUESTED_WEIGHT_DAYS: ${{ inputs.weight_days }}
@@ -74,13 +73,32 @@ jobs:
               *) weight_days="$REQUESTED_WEIGHT_DAYS" ;;
             esac
           else
-            local_time=$(TZ=Europe/Warsaw date +%H:%M)
-            case "$local_time" in
-              06:30|12:30|18:30|23:30) mode="activities" ;;
-              10:00|17:00) mode="weight" ;;
+            # Harmonogram GitHuba jest kolejką: bieg zaplanowany na 04:30 UTC
+            # potrafi ruszyć kilkanaście minut później. Dlatego o zakresie
+            # decyduje wpis crona, który wyzwolił bieg, a nie odczyt zegara.
+            # Zegar rozstrzyga wyłącznie, która połowa pary letnia/zimowa
+            # odpowiada dziś właściwej godzinie w Warszawie.
+            offset=$(TZ=Europe/Warsaw date +%z)
+            case "$offset" in
+              +0100|+0200) ;;
+              *) echo "Nieoczekiwane przesunięcie strefy Europe/Warsaw: $offset" >&2; exit 2 ;;
+            esac
+            case "$offset|$SCHEDULE" in
+              "+0200|30 4 * * *")  mode="activities" ;;  # 06:30 czasu letniego
+              "+0100|30 5 * * *")  mode="activities" ;;  # 06:30 czasu zimowego
+              "+0200|30 10 * * *") mode="activities" ;;  # 12:30 czasu letniego
+              "+0100|30 11 * * *") mode="activities" ;;  # 12:30 czasu zimowego
+              "+0200|30 16 * * *") mode="activities" ;;  # 18:30 czasu letniego
+              "+0100|30 17 * * *") mode="activities" ;;  # 18:30 czasu zimowego
+              "+0200|30 21 * * *") mode="activities" ;;  # 23:30 czasu letniego
+              "+0100|30 22 * * *") mode="activities" ;;  # 23:30 czasu zimowego
+              "+0200|0 8 * * *")   mode="weight" ;;      # 10:00 czasu letniego
+              "+0100|0 9 * * *")   mode="weight" ;;      # 10:00 czasu zimowego
+              "+0200|0 15 * * *")  mode="weight" ;;      # 17:00 czasu letniego
+              "+0100|0 16 * * *")  mode="weight" ;;      # 17:00 czasu zimowego
               *)
                 echo "run=false" >> "$GITHUB_OUTPUT"
-                echo "Pominięto zapasowe wyzwolenie UTC o $local_time Europe/Warsaw."
+                echo "Pominięto drugą połowę pary letnia/zimowa: cron '$SCHEDULE' przy przesunięciu $offset."
                 exit 0
                 ;;
             esac
@@ -114,12 +132,20 @@ jobs:
       - name: Synchronizuj dane
         if: steps.scope.outputs.run == 'true'
         run: |
+          set -o pipefail
           python PROJECTS/forma_zycia/automatyzacja/synchronizuj_garmin.py \
             --mode "${{ steps.scope.outputs.mode }}" \
             --token-store "$RUNNER_TEMP/garmin-token" \
             --days "${{ steps.scope.outputs.weight_days }}" \
             --activity-days "${{ steps.scope.outputs.activity_days }}" \
-            --lock-file "$RUNNER_TEMP/garmin-sync.lock"
+            --lock-file "$RUNNER_TEMP/garmin-sync.lock" \
+            | tee "$RUNNER_TEMP/garmin-sync.log"
+          # Odświeżony token żyje tylko w tej maszynie, więc sekret starzeje się
+          # po cichu. To jedyne ostrzeżenie przed dniem, w którym przestanie
+          # działać; treść tokenu nie trafia ani do logu, ani do ostrzeżenia.
+          if grep -q 'garmin-token-refreshed' "$RUNNER_TEMP/garmin-sync.log"; then
+            echo "::warning::Garmin odświeżył token podczas tego biegu. Sekret GARMIN_TOKENS_JSON_B64 jest sprzed odświeżenia — odnów go zgodnie z sekcją „Odnawianie tokenu” w PROJECTS/forma_zycia/automatyzacja/README.md."
+          fi
 
       - name: Zapisz dane w prywatnym repozytorium
         if: steps.scope.outputs.run == 'true'
@@ -135,5 +161,9 @@ jobs:
             -m "Aktualizuj dane Garmin: ${{ steps.scope.outputs.mode }}" \
             -m "Intencja: zachować aktualną historię treningów i wagi w prywatnym repozytorium bez zapisywania surowych plików ani danych uwierzytelniających."
           git fetch origin main
-          git rebase origin/main
+          if ! git rebase origin/main; then
+            git rebase --abort || true
+            echo "::error::Konflikt między danymi z tego biegu a origin/main. Nic nie zostało wypchnięte; dane wrócą przy kolejnej synchronizacji, gdy rozbieżność zostanie ręcznie rozstrzygnięta."
+            exit 1
+          fi
           git push origin HEAD:main
