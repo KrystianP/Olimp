@@ -16,10 +16,12 @@ Przed rekomendacją przeczytaj:
 - `PROJECTS/forma_zycia/opis.md`,
 - `PROJECTS/forma_zycia/status.md`,
 - `DATA/waga.csv`, gdy pytanie dotyczy masy lub trendu,
-- `DATA/nawyki.json`, gdy zawiera potrzebne dane.
+- `DATA/garmin/aktywnosci.csv`, gdy pytanie dotyczy aktywności, obciążenia
+  treningowego lub regeneracji.
 
-Przy analizie jedzenia, głodu, zachcianek, przejadania, wagi lub potknięcia użyj
-skilla `.agents/skills/prowadz-redukcje/SKILL.md`.
+Przy analizie jedzenia, głodu, zachcianek, przejadania, wagi lub potknięcia
+stosuj `AGENTS/health_agent/PROTOKOL_ANALIZY.md` i kontekst
+`PROJECTS/forma_zycia/`.
 
 ## Bezpieczeństwo
 

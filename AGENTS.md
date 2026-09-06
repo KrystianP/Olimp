@@ -15,7 +15,7 @@ całe repozytorium, chyba że głębszy `AGENTS.md` stanowi inaczej.
 4. Przy zdrowiu, relacjach, finansach osobistych, pasjach, rozwoju lub
    planowaniu przeczytaj odpowiednie pliki z `CORE/`.
 5. Przeczytaj `opis.md` i `status.md` właściwego projektu.
-6. Przeczytaj instrukcję odpowiedniego agenta lub skilla.
+6. Przeczytaj instrukcję odpowiedniego agenta.
 7. Jeżeli odpowiedź zależy od zadań, pobierz aktualny stan z Todoist.
 
 ## Zakres systemu
@@ -150,13 +150,19 @@ priorytetach, etykietach, sekcjach i wykonaniu.
 - Wybieraj maksymalnie 1–3 kolejne działania.
 - Plan ma zawierać to, czego świadomie teraz nie robimy.
 
-## Agenci i skille
+## Agenci
 
 - Przy zdrowiu przeczytaj `AGENTS/health_agent/instrukcja.md`.
 - Przy priorytetach i Todoist przeczytaj
   `AGENTS/productivity_agent/instrukcja.md`.
-- Przy analizie jedzenia, głodu, zachcianek, wagi i redukcji użyj
-  `.agents/skills/prowadz-redukcje/SKILL.md` zgodnie z jego instrukcją.
+- Przy analizie jedzenia, głodu, zachcianek, wagi i redukcji pracuj na
+  `AGENTS/health_agent/instrukcja.md` oraz
+  `AGENTS/health_agent/PROTOKOL_ANALIZY.md` wraz z kontekstem
+  `PROJECTS/forma_zycia/`.
+
+To repozytorium nie zawiera katalogu `.agents/skills/`. Skill
+`prowadz-redukcje` nie został przeniesiony podczas migracji z 19.08.2026 i
+nie istnieje. Nie odwołuj się do niego i nie zakładaj jego zawartości.
 
 ## Prywatność
 

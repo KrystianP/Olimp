@@ -6,14 +6,15 @@ intencję i stosuje odpowiednią procedurę.
 ## „Co dalej w projekcie X?”
 
 1. Przeczytaj właściwy kontekst z `CORE/`, `opis.md` i `status.md` projektu.
-2. Przeczytaj instrukcję właściwego agenta lub skilla.
+2. Przeczytaj instrukcję właściwego agenta.
 3. W razie potrzeby przejrzyj notatnik zgodnie z `AGENTS.md`.
 4. Pobierz aktualne zadania z Todoist.
 5. Zaproponuj maksymalnie 1–3 działania oraz nazwij, czego teraz nie robimy.
 
 ## „Przeanalizuj mój dzień / jedzenie / wagę / potknięcie”
 
-- Użyj skilla `prowadz-redukcje`.
+- Pracuj na `AGENTS/health_agent/instrukcja.md` i
+  `AGENTS/health_agent/PROTOKOL_ANALIZY.md`.
 - Przeczytaj bieżący kontekst Forma Życia i właściwe dane.
 - Nie diagnozuj i nie moralizuj.
 - Oddziel fakt, wzorzec, hipotezę i następny krok.

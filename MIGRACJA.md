@@ -22,6 +22,21 @@ systemu biznesowego.
 - Skill `prowadz-redukcje` → `.agents/skills/`.
 - Wspólne instrukcje i szablony zostały dostosowane do domeny prywatnej.
 
+### Sprostowanie z 06.09.2026
+
+Weryfikacja repozytorium wykazała, że dwie pozycje z powyższej listy nie
+odpowiadają stanowi faktycznemu:
+
+- Skill `prowadz-redukcje` nie został przeniesiony. Katalog `.agents/skills/`
+  nie istnieje. Odwołania do niego zostały usunięte z `AGENTS.md`,
+  `README.md`, `CHAT_COMMANDS.md` i `AGENTS/health_agent/instrukcja.md`.
+- `DATA/nawyki.json` został przeniesiony jako pusty obiekt `{}` i nigdy nie
+  zawierał danych. Plik usunięto wraz z odwołaniami; nie utracono żadnych
+  pomiarów.
+
+Ta sekcja nie zmienia treści raportu z 19.08.2026, tylko odnotowuje różnicę
+między nim a stanem repozytorium.
+
 ## Świadomie nieprzeniesione jako aktywne źródła
 
 - `CORE/cele-2.md` i `CORE/cele-3.md`: oba są oznaczone jako propozycje, które

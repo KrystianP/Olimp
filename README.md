@@ -46,16 +46,23 @@ Aktywne projekty:
   regeneracja i ciągłość abstynencji.
 - `PROJECTS/finanse/` — finanse osobiste, bezpieczeństwo finansowe oraz
   decyzje finansowe i inwestycyjne.
-- `PROJECTS/karola/` — relacja partnerska, stabilizacja, wspólny czas i komunikacja.
+
+Projekt `PROJECTS/karola/` (relacja partnerska) nie został jeszcze utworzony.
+Zgodnie z celem `REL-001` w `CORE/cele.md` pozostaje do zainicjowania po
+decyzji Krystiana, procedurą z `PROJECTS/_szablony/README.md`.
 
 ### `DATA/`
 
 - `waga.csv` — historia pomiarów i średnich masy ciała.
-- `nawyki.json` — dane o nawykach, gdy są dostępne.
+- `garmin/aktywnosci.csv` — lekki indeks aktywności z Garmina, synchronizowany
+  przez `.github/workflows/synchronizuj-garmin.yml`; bez GPS i plików surowych.
 
 Nie usuwaj historii pomiarów i nie traktuj pojedynczego odczytu jako diagnozy.
 
-### `AGENTS/` i `.agents/skills/`
+System nie prowadzi obecnie danych o nawykach. Jeżeli taki strumień powstanie,
+najpierw zdefiniuj, jaką decyzję ma wspierać.
+
+### `AGENTS/`
 
 - `health_agent/instrukcja.md` — bezpieczne wsparcie zdrowotne.
 - `health_agent/analizuj_wyniki.py` — MVP technicznego odczytu wyników badań z
@@ -63,7 +70,8 @@ Nie usuwaj historii pomiarów i nie traktuj pojedynczego odczytu jako diagnozy.
 - `health_agent/PROTOKOL_ANALIZY.md` — kolejność analizy i zasady oddzielania
   faktów, obserwacji, hipotez oraz rekomendacji.
 - `productivity_agent/instrukcja.md` — planowanie celów i projektów prywatnych.
-- `.agents/skills/prowadz-redukcje/` — wyspecjalizowany sposób analizy redukcji.
+
+Repozytorium nie zawiera katalogu `.agents/skills/`.
 
 ### Todoist
 
