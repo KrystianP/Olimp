@@ -27,7 +27,8 @@ Przed kolejnym planem należy odczytać bieżące zadania i aktualne pomiary.
   dziennie, a waga o 10:00 i 17:00 czasu `Europe/Warsaw`. Mechanizm pozostaje
   niezależny od wykresu; komputer pobiera dane osobnym, bezpiecznym
   fast-forward przy rozpoczęciu lokalnej pracy.
-- Workflow GitHub Actions jest aktywny. Ręczny test `34054005649` z 06.09.2026
+- Workflow GitHub Actions jest aktywny. Końcowy test `34054091261` z
+  06.09.2026, wykonany na `actions/checkout@v7` i `actions/setup-python@v7`,
   zakończył się sukcesem: odczytał 27 aktywności i 14 pomiarów wagi; nie
   utworzył commita, ponieważ kanoniczne CSV były już aktualne. Pierwszy bieg
   wywołany harmonogramem pozostaje osobnym potwierdzeniem automatycznego
