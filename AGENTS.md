@@ -150,6 +150,20 @@ priorytetach, etykietach, sekcjach i wykonaniu.
 - Wybieraj maksymalnie 1–3 kolejne działania.
 - Plan ma zawierać to, czego świadomie teraz nie robimy.
 
+## Przegląd tygodniowy i zamrożenie systemu
+
+`PRZEGLAD.md` opisuje stały, cotygodniowy rytm zamieniający dane na decyzję.
+Jego wyjściem jest maksymalnie 3 zadania w Todoist i jedno zdanie w `status.md`
+właściwego projektu.
+
+Do 04.10.2026 obowiązuje zamrożenie systemu: nie dodawaj nowych funkcji,
+skryptów, agentów ani projektów. Jedynym warunkiem wyjścia jest przegląd, który
+zatrzymał się z powodu braku danych do decyzji; wtedy dobuduj wyłącznie to,
+czego zabrakło. Wygoda nie jest podstawą.
+
+Gdy Krystian prosi o nowy element systemu w czasie zamrożenia, przypomnij o nim
+i zapytaj, którą decyzję ten element odblokowuje.
+
 ## Agenci
 
 - Przy zdrowiu przeczytaj `AGENTS/health_agent/instrukcja.md`.

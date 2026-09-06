@@ -38,6 +38,20 @@ Przed kolejnym planem należy odczytać bieżące zadania i aktualne pomiary.
   więc taki warunek pomijałby niemal każde uruchomienie, kończąc je sukcesem
   bez pobrania danych. Od 06.09.2026 o zakresie decyduje wpis crona, który
   wyzwolił bieg; zegar rozstrzyga już tylko czas letni albo zimowy.
+- Weryfikacja historii biegów z 06.09.2026: ostatni bieg wywołany
+  harmonogramem pochodzi z 27.08.2026 i zakończył się sukcesem, ustawiając
+  `run=false`, czyli bez pobrania danych. Wcześniejsze biegi z harmonogramu
+  kończyły się na przemian sukcesem bez synchronizacji i błędem przy pustym
+  sekrecie `GARMIN_TOKENS_JSON_B64`. Między 28.08 a 05.09.2026 nie ma żadnego
+  biegu z harmonogramu; przyczyna tej przerwy pozostaje niepotwierdzona.
+  Wniosek: harmonogram nie dostarczył dotąd żadnych danych, a dane w
+  repozytorium pochodzą z uruchomień ręcznych.
+- Nowa reguła wyboru zakresu została sprawdzona testem
+  `automatyzacja/test_harmonogram_workflow.py`, który uruchamia prawdziwy blok
+  bash z workflow dla wszystkich 12 wpisów crona w czasie letnim i zimowym.
+  Każdy wpis uruchamia się dokładnie w jednej strefie, co daje cztery
+  synchronizacje aktywności i dwie wagi na dobę. Potwierdzenie działania na
+  produkcji nadal wymaga pierwszego biegu wywołanego harmonogramem.
 - Token lokalny został utworzony 06.09.2026 i tę datę przyjmujemy za wiek
   sekretu `GARMIN_TOKENS_JSON_B64`. Sekret nie odnawia się sam: gdy Garmin
   odświeży token, bieg w Actions kończy się ostrzeżeniem i trzeba wykonać

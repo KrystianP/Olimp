@@ -1,0 +1,45 @@
+name: Testy automatyzacji
+
+# Synchronizacja Garmin działa bez nadzoru, więc jej błąd bywa widoczny dopiero
+# jako brak danych. Ten workflow uruchamia testy przy każdej zmianie kodu
+# automatyzacji albo samego harmonogramu.
+#
+# Testy chodzą na `unittest` z biblioteki standardowej. W repozytorium nie ma
+# `pytest` ani pliku zależności deweloperskich, więc krok oparty na nim
+# przechodziłby jako pusty sukces.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "PROJECTS/forma_zycia/automatyzacja/**.py"
+      - ".github/workflows/synchronizuj-garmin.yml"
+      - ".github/workflows/testy-automatyzacji.yml"
+  pull_request:
+    paths:
+      - "PROJECTS/forma_zycia/automatyzacja/**.py"
+      - ".github/workflows/synchronizuj-garmin.yml"
+      - ".github/workflows/testy-automatyzacji.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testy-automatyzacji-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Uruchom testy jednostkowe
+        working-directory: PROJECTS/forma_zycia/automatyzacja
+        # Testy nie łączą się z Garminem i nie potrzebują sekretów.
+        run: python3 -m unittest discover --pattern "test_*.py" --verbose

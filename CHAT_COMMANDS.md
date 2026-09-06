@@ -27,6 +27,14 @@ intencję i stosuje odpowiednią procedurę.
 - Przy objawach alarmowych rekomenduj właściwy kontakt medyczny.
 - Jeżeli plan prowadzi do zadań, pobierz bieżący stan Todoist przed zmianą.
 
+## „Zrób przegląd” / „Przegląd tygodniowy”
+
+1. Wykonaj procedurę z `PRZEGLAD.md`.
+2. Uruchom `python3 przeglad.py` i oprzyj się na jego liczbach.
+3. Dla każdego celu z liczbą odpowiedz, czy tempo wystarczy do terminu.
+4. Zakończ maksymalnie 3 zadaniami w Todoist i jednym zdaniem w `status.md`.
+5. Nie rozbudowuj systemu; obowiązuje zamrożenie opisane w `PRZEGLAD.md`.
+
 ## „Przejrzyj cele”
 
 - Przeczytaj `CORE/cele.md`, `profil.md` i `zasady.md`.

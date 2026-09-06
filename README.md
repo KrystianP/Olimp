@@ -51,6 +51,17 @@ Projekt `PROJECTS/karola/` (relacja partnerska) nie został jeszcze utworzony.
 Zgodnie z celem `REL-001` w `CORE/cele.md` pozostaje do zainicjowania po
 decyzji Krystiana, procedurą z `PROJECTS/_szablony/README.md`.
 
+### `PRZEGLAD.md` i `przeglad.py`
+
+`PRZEGLAD.md` opisuje cotygodniowy przegląd zamieniający dane na decyzję, jego
+sztywne wyjście oraz obowiązujące zamrożenie rozbudowy systemu.
+`przeglad.py` wypisuje liczby potrzebne do tego przeglądu: stan celów
+mierzalnych, tempo wymagane do terminu, jakość danych i cele bez miernika.
+
+```bash
+python3 przeglad.py
+```
+
 ### `DATA/`
 
 - `waga.csv` — historia pomiarów i średnich masy ciała.

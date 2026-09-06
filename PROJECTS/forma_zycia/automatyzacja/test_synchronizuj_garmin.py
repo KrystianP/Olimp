@@ -4,6 +4,7 @@ import contextlib
 import csv
 import io
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -528,6 +529,32 @@ class SynchronizacjaGarminTest(unittest.TestCase):
 
         self.assertIsNone(client.client.dumped)
         self.assertEqual(output.getvalue(), "")
+
+
+class WorkflowGarminTest(unittest.TestCase):
+    """Pilnuje umowy między skryptem a workflow, którą łatwo zerwać po cichu."""
+
+    WORKFLOW = sync.REPOSITORY_ROOT / ".github" / "workflows" / "synchronizuj-garmin.yml"
+
+    def setUp(self) -> None:
+        self.text = self.WORKFLOW.read_text(encoding="utf-8")
+
+    def test_workflow_watches_for_the_token_marker(self) -> None:
+        self.assertIn(sync.TOKEN_REFRESHED_MARKER, self.text)
+
+    def test_every_scheduled_cron_has_its_own_branch(self) -> None:
+        crons = re.findall(r'- cron: "([^"]+)"', self.text)
+
+        self.assertEqual(len(crons), 12)
+        for cron in crons:
+            with self.subTest(cron=cron):
+                self.assertIn(f'|{cron}"', self.text)
+
+    def test_the_scope_step_does_not_compare_the_clock_to_the_timetable(self) -> None:
+        # Porównanie bieżącej godziny z rozkładem pomijało biegi opóźnione
+        # przez kolejkę GitHuba i kończyło je sukcesem bez pobrania danych.
+        self.assertNotIn("date +%H:%M", self.text)
+        self.assertIn("github.event.schedule", self.text)
 
 
 if __name__ == "__main__":
