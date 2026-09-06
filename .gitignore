@@ -1,3 +1,7 @@
 PROJECTS/forma_zycia/automatyzacja/.venv-garmin/
+PROJECTS/forma_zycia/automatyzacja/logs/
+DATA/garmin/surowe/
+DATA/garmin/*.sqlite
+.env
 __pycache__/
 .DS_Store

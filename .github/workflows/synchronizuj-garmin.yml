@@ -3,18 +3,39 @@ name: Synchronizuj dane Garmin
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: "Zakres synchronizacji"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - activities
+          - weight
       activity_days:
-        description: "Liczba dni aktywności do importu; przy pierwszym uruchomieniu użyj 3650."
+        description: "Liczba dni aktywności do sprawdzenia"
         required: true
-        default: "3650"
+        default: "14"
       weight_days:
-        description: "Liczba dni pomiarów wagi do importu; przy pierwszym uruchomieniu użyj 3650."
+        description: "Liczba dni pomiarów wagi do sprawdzenia"
         required: true
-        default: "3650"
+        default: "14"
   schedule:
-    # GitHub Actions używa UTC. Dwa wyzwolenia obsługują czas letni i zimowy.
-    - cron: "45 21 * * *"
-    - cron: "45 22 * * *"
+    # GitHub Actions używa UTC. Pary godzin obsługują czas letni i zimowy.
+    # Aktywności: 06:30, 12:30, 18:30 i 23:30 Europe/Warsaw.
+    - cron: "30 4 * * *"
+    - cron: "30 5 * * *"
+    - cron: "30 10 * * *"
+    - cron: "30 11 * * *"
+    - cron: "30 16 * * *"
+    - cron: "30 17 * * *"
+    - cron: "30 21 * * *"
+    - cron: "30 22 * * *"
+    # Waga: 10:00 i 17:00 Europe/Warsaw.
+    - cron: "0 8 * * *"
+    - cron: "0 9 * * *"
+    - cron: "0 15 * * *"
+    - cron: "0 16 * * *"
 
 permissions:
   contents: write
@@ -31,29 +52,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Wybierz wyzwolenie właściwe dla czasu Bratysławy
-        id: schedule
+      - name: Wybierz zakres właściwy dla czasu Warszawy
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_MODE: ${{ inputs.mode }}
+          REQUESTED_ACTIVITY_DAYS: ${{ inputs.activity_days }}
+          REQUESTED_WEIGHT_DAYS: ${{ inputs.weight_days }}
         run: |
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}:$(TZ=Europe/Bratislava date +%z)" = "45 21 * * *:+0200" ] || \
-               [ "${{ github.event.schedule }}:$(TZ=Europe/Bratislava date +%z)" = "45 22 * * *:+0100" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$REQUESTED_MODE" in
+              all|activities|weight) mode="$REQUESTED_MODE" ;;
+              *) echo "Nieprawidłowy tryb: $REQUESTED_MODE" >&2; exit 2 ;;
+            esac
+            case "$REQUESTED_ACTIVITY_DAYS" in
+              ''|*[!0-9]*) echo "Nieprawidłowe activity_days." >&2; exit 2 ;;
+              *) activity_days="$REQUESTED_ACTIVITY_DAYS" ;;
+            esac
+            case "$REQUESTED_WEIGHT_DAYS" in
+              ''|*[!0-9]*) echo "Nieprawidłowe weight_days." >&2; exit 2 ;;
+              *) weight_days="$REQUESTED_WEIGHT_DAYS" ;;
+            esac
           else
-            echo "run=false" >> "$GITHUB_OUTPUT"
+            local_time=$(TZ=Europe/Warsaw date +%H:%M)
+            case "$local_time" in
+              06:30|12:30|18:30|23:30) mode="activities" ;;
+              10:00|17:00) mode="weight" ;;
+              *)
+                echo "run=false" >> "$GITHUB_OUTPUT"
+                echo "Pominięto zapasowe wyzwolenie UTC o $local_time Europe/Warsaw."
+                exit 0
+                ;;
+            esac
+            activity_days=14
+            weight_days=14
           fi
+          echo "run=true" >> "$GITHUB_OUTPUT"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "activity_days=$activity_days" >> "$GITHUB_OUTPUT"
+          echo "weight_days=$weight_days" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-python@v5
-        if: steps.schedule.outputs.run == 'true'
+        if: steps.scope.outputs.run == 'true'
         with:
           python-version: "3.12"
 
       - name: Zainstaluj zależność Garmin
-        if: steps.schedule.outputs.run == 'true'
-        run: python -m pip install --upgrade "garminconnect==0.3.4"
+        if: steps.scope.outputs.run == 'true'
+        run: python -m pip install --requirement PROJECTS/forma_zycia/automatyzacja/requirements-garmin.txt
 
       - name: Odtwórz token Garmin
-        if: steps.schedule.outputs.run == 'true'
+        if: steps.scope.outputs.run == 'true'
         env:
           GARMIN_TOKENS_JSON_B64: ${{ secrets.GARMIN_TOKENS_JSON_B64 }}
         run: |
@@ -63,29 +112,28 @@ jobs:
           printf '%s' "$GARMIN_TOKENS_JSON_B64" | base64 --decode > "$RUNNER_TEMP/garmin-token/garmin_tokens.json"
 
       - name: Synchronizuj dane
-        if: steps.schedule.outputs.run == 'true'
+        if: steps.scope.outputs.run == 'true'
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            activity_days="${{ inputs.activity_days }}"
-            weight_days="${{ inputs.weight_days }}"
-          else
-            activity_days=30
-            weight_days=14
-          fi
           python PROJECTS/forma_zycia/automatyzacja/synchronizuj_garmin.py \
+            --mode "${{ steps.scope.outputs.mode }}" \
             --token-store "$RUNNER_TEMP/garmin-token" \
-            --days "$weight_days" \
-            --activity-days "$activity_days"
+            --days "${{ steps.scope.outputs.weight_days }}" \
+            --activity-days "${{ steps.scope.outputs.activity_days }}" \
+            --lock-file "$RUNNER_TEMP/garmin-sync.lock"
 
       - name: Zapisz dane w prywatnym repozytorium
-        if: steps.schedule.outputs.run == 'true'
+        if: steps.scope.outputs.run == 'true'
         run: |
-          if [ -z "$(git status --porcelain -- DATA/waga.csv DATA/garmin)" ]; then
+          if [ -z "$(git status --porcelain -- DATA/waga.csv DATA/garmin/aktywnosci.csv)" ]; then
             echo "Brak nowych danych Garmin."
             exit 0
           fi
           git config user.name "garmin-sync[bot]"
           git config user.email "garmin-sync[bot]@users.noreply.github.com"
-          git add -- DATA/waga.csv DATA/garmin
-          git commit -m "Dane Garmin: synchronizacja $(TZ=Europe/Bratislava date '+%Y-%m-%d %H:%M')"
+          git add -- DATA/waga.csv DATA/garmin/aktywnosci.csv
+          git commit \
+            -m "Aktualizuj dane Garmin: ${{ steps.scope.outputs.mode }}" \
+            -m "Intencja: zachować aktualną historię treningów i wagi w prywatnym repozytorium bez zapisywania surowych plików ani danych uwierzytelniających."
+          git fetch origin main
+          git rebase origin/main
           git push origin HEAD:main

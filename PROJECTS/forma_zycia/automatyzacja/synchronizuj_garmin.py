@@ -1,36 +1,40 @@
 #!/usr/bin/env python3
-"""Synchronizuje pomiary z Garmin Connect do DATA/waga.csv.
+"""Synchronizuje lekki indeks aktywności i wagę z Garmin Connect.
 
-Skrypt nie przechowuje hasła. W trybie automatycznym korzysta wyłącznie z
-odświeżalnego tokenu Garmin przekazanego przez ``--token-store``.
+Hasło nie jest przechowywane. Automatyczne uruchomienia korzystają wyłącznie
+z tokenu Garmina zapisanego poza repozytorium. Surowe pliki FIT, współrzędne
+GPS i identyfikatory urządzeń nie trafiają do Olimpu.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import fcntl
 import getpass
 import json
 import os
-import sqlite3
 import sys
+from contextlib import contextmanager
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from statistics import mean
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, Iterator, TextIO
 from zoneinfo import ZoneInfo
 
 
 PROJECT_DIRECTORY = Path(__file__).resolve().parent
 REPOSITORY_ROOT = PROJECT_DIRECTORY.parents[2]
 WEIGHT_DATA = REPOSITORY_ROOT / "DATA" / "waga.csv"
-GARMIN_DATA_DIRECTORY = REPOSITORY_ROOT / "DATA" / "garmin"
-DATABASE_PATH = GARMIN_DATA_DIRECTORY / "garmin.sqlite"
-RAW_ACTIVITY_DIRECTORY = GARMIN_DATA_DIRECTORY / "surowe" / "aktywnosci"
-ORIGINAL_ACTIVITY_DIRECTORY = GARMIN_DATA_DIRECTORY / "surowe" / "oryginalne"
+ACTIVITIES_DATA = REPOSITORY_ROOT / "DATA" / "garmin" / "aktywnosci.csv"
+DEFAULT_TOKEN_STORE = Path.home() / ".config" / "krystian-os" / "garmin"
+DEFAULT_LOCK_FILE = (
+    Path.home() / "Library" / "Application Support" / "KrystianOS" / "garmin" / "sync.lock"
+)
 WARSAW = ZoneInfo("Europe/Warsaw")
-REQUIRED_COLUMNS = (
+
+WEIGHT_COLUMNS = (
     "data",
     "waga_kg",
     "tkanka_tluszczowa_proc",
@@ -41,85 +45,149 @@ REQUIRED_COLUMNS = (
     "zmiana_kg",
 )
 
+ACTIVITY_COLUMNS = (
+    "activity_id",
+    "start_time_local",
+    "activity_type",
+    "duration_seconds",
+    "distance_meters",
+    "calories",
+    "average_hr_bpm",
+    "max_hr_bpm",
+    "elevation_gain_m",
+    "training_load",
+    "aerobic_training_effect",
+    "anaerobic_training_effect",
+)
+
+
+class AlreadyRunningError(RuntimeError):
+    """Inna synchronizacja korzysta już z tego samego magazynu danych."""
+
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Pobiera ostatnie pomiary z Garmin i aktualizuje DATA/waga.csv."
+        description="Synchronizuje aktywności i wagę z Garmin Connect."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=("activities", "weight", "all", "auth", "bootstrap"),
+        default="all",
+        help="Zakres pracy (domyślnie: all).",
     )
     parser.add_argument(
         "--token-store",
         type=Path,
-        required=True,
-        help="Katalog zawierający garmin_tokens.json.",
+        default=DEFAULT_TOKEN_STORE,
+        help="Katalog z lokalnym tokenem Garmin.",
     )
     parser.add_argument(
         "--days",
         type=int,
         default=14,
-        help="Liczba ostatnich dni do ponownego sprawdzenia (domyślnie: 14).",
+        help="Okno ponownego sprawdzania wagi (domyślnie: 14 dni).",
     )
     parser.add_argument(
         "--activity-days",
         type=int,
-        default=30,
-        help="Liczba dni aktywności do ponownego sprawdzenia (domyślnie: 30).",
-    )
-    parser.add_argument(
-        "--database",
-        type=Path,
-        default=DATABASE_PATH,
-        help="Lokalna baza SQLite z danymi Garmin.",
+        default=14,
+        help="Okno ponownego sprawdzania aktywności (domyślnie: 14 dni).",
     )
     parser.add_argument(
         "--weight-data",
         type=Path,
         default=WEIGHT_DATA,
-        help="CSV z historią wagi do aktualizacji.",
+        help="Kanoniczny CSV z historią wagi.",
     )
     parser.add_argument(
-        "--raw-activity-directory",
+        "--activities-data",
         type=Path,
-        default=RAW_ACTIVITY_DIRECTORY,
-        help="Katalog niezmienionych odpowiedzi Garmin dla aktywności.",
+        default=ACTIVITIES_DATA,
+        help="Lekki CSV z aktywnościami.",
     )
     parser.add_argument(
-        "--original-activity-directory",
+        "--bootstrap-from",
         type=Path,
-        default=ORIGINAL_ACTIVITY_DIRECTORY,
-        help="Katalog oryginalnych archiwów aktywności Garmin.",
+        help="Katalog pobrane_treningi używany tylko przez tryb bootstrap.",
     )
     parser.add_argument(
         "--initialize-auth",
         action="store_true",
-        help="Jednorazowo poproś lokalnie o dane Garmin i kod MFA, aby utworzyć token.",
+        help="Jednorazowo poproś o dane Garmin i MFA, aby utworzyć token.",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Sprawdź dane bez zapisywania CSV.",
+        help="Pobierz i zweryfikuj dane bez zapisywania CSV.",
+    )
+    parser.add_argument(
+        "--lock-file",
+        type=Path,
+        default=DEFAULT_LOCK_FILE,
+        help="Wspólna blokada zapobiegająca równoległym uruchomieniom.",
     )
     arguments = parser.parse_args()
-    if arguments.days < 1 or arguments.days > 3650:
+    if not 1 <= arguments.days <= 3650:
         parser.error("--days musi być liczbą od 1 do 3650.")
-    if arguments.activity_days < 1 or arguments.activity_days > 3650:
+    if not 1 <= arguments.activity_days <= 3650:
         parser.error("--activity-days musi być liczbą od 1 do 3650.")
+    if arguments.mode == "bootstrap" and arguments.bootstrap_from is None:
+        parser.error("Tryb bootstrap wymaga --bootstrap-from.")
     return arguments
 
 
+@contextmanager
+def exclusive_lock(path: Path) -> Iterator[None]:
+    path = path.expanduser().resolve()
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    try:
+        path.parent.relative_to(Path.home())
+    except ValueError:
+        pass
+    else:
+        path.parent.chmod(0o700)
+    lock: TextIO = path.open("a+", encoding="utf-8")
+    path.chmod(0o600)
+    try:
+        try:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise AlreadyRunningError("inna synchronizacja Garmin nadal trwa") from error
+        lock.seek(0)
+        lock.truncate()
+        lock.write(f"pid={os.getpid()} started={datetime.now(WARSAW).isoformat()}\n")
+        lock.flush()
+        yield
+    finally:
+        try:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        finally:
+            lock.close()
+
+
+def secure_token_store(path: Path) -> None:
+    path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    path.chmod(0o700)
+    for token_file in path.iterdir():
+        if token_file.is_file():
+            token_file.chmod(0o600)
+
+
 def connect_to_garmin(token_store: Path, initialize_auth: bool) -> Any:
-    """Zwraca zalogowany klient Garmin bez wypisywania danych uwierzytelniających."""
+    """Zwraca klienta Garmin bez wypisywania danych uwierzytelniających."""
     try:
         from garminconnect import Garmin
     except ImportError as error:
         raise RuntimeError(
-            "Brakuje pakietu garminconnect. Uruchom logowanie przez plik "
-            "zaloguj-garmin.command."
+            "Brakuje pakietu garminconnect. Uruchom zaloguj-garmin.command."
         ) from error
 
-    token_store.mkdir(mode=0o700, parents=True, exist_ok=True)
+    token_store = token_store.expanduser().resolve()
+    secure_token_store(token_store)
     if not initialize_auth:
         client = Garmin()
-        client.login(str(token_store))
+        client.login(tokenstore=str(token_store))
+        secure_token_store(token_store)
         return client
 
     email = input("E-mail do Garmin Connect: ").strip()
@@ -128,13 +196,13 @@ def connect_to_garmin(token_store: Path, initialize_auth: bool) -> Any:
     password = getpass.getpass("Hasło Garmin Connect (nie będzie wyświetlone): ")
     if not password:
         raise RuntimeError("Hasło Garmin nie może być puste.")
-
     client = Garmin(
         email=email,
         password=password,
-        prompt_mfa=lambda: input("Kod MFA Garmin (jeśli zostanie wymagany): ").strip(),
+        prompt_mfa=lambda: input("Kod MFA Garmin (jeśli wymagany): ").strip(),
     )
-    client.login(str(token_store))
+    client.login(tokenstore=str(token_store))
+    secure_token_store(token_store)
     return client
 
 
@@ -146,38 +214,184 @@ def first_value(record: dict[str, Any], *keys: str) -> Any:
     return None
 
 
+def optional_number(
+    value: Any,
+    *,
+    minimum: float | None = None,
+    maximum: float | None = None,
+    name: str,
+) -> float | None:
+    if value in (None, ""):
+        return None
+    number = float(value)
+    if minimum is not None and number < minimum:
+        raise ValueError(f"Nieprawidłowa wartość {name}: {number}.")
+    if maximum is not None and number > maximum:
+        raise ValueError(f"Nieprawidłowa wartość {name}: {number}.")
+    return number
+
+
+def format_number(value: float | None, decimals: int = 2) -> str:
+    if value is None:
+        return ""
+    return f"{float(value):.{decimals}f}".rstrip("0").rstrip(".")
+
+
+def format_fixed(value: float | None, decimals: int = 1) -> str:
+    if value is None:
+        return ""
+    return f"{float(value):.{decimals}f}"
+
+
+def normalise_activity(record: dict[str, Any]) -> dict[str, str]:
+    activity_id = first_value(record, "activityId", "activity_id", "id")
+    if activity_id is None:
+        raise ValueError("Aktywność Garmin nie zawiera activityId.")
+    activity_type = first_value(record, "activityType", "activity_type", "typ")
+    if isinstance(activity_type, dict):
+        activity_type = first_value(activity_type, "typeKey", "typeId", "displayName")
+    start_time = first_value(
+        record, "startTimeLocal", "start_time_local", "rozpoczecie_lokalne", "startTimeGMT"
+    )
+    if start_time is None:
+        raise ValueError(f"Aktywność Garmin {activity_id} nie zawiera czasu rozpoczęcia.")
+    start_time_text = str(start_time).replace("T", " ")
+    if len(start_time_text) >= 19:
+        start_time_text = start_time_text[:19]
+
+    numeric_fields = {
+        "duration_seconds": first_value(record, "duration", "duration_seconds", "czas_s"),
+        "distance_meters": first_value(record, "distance", "distance_meters", "dystans_m"),
+        "calories": first_value(record, "calories", "activeKilocalories"),
+        "average_hr_bpm": first_value(record, "averageHR", "average_hr", "srednie_tetno_bpm"),
+        "max_hr_bpm": first_value(record, "maxHR", "max_hr", "maksymalne_tetno_bpm"),
+        "elevation_gain_m": first_value(record, "elevationGain", "elevation_gain_m", "przewyzszenie_m"),
+        "training_load": first_value(record, "activityTrainingLoad", "training_load"),
+        "aerobic_training_effect": first_value(record, "aerobicTrainingEffect", "aerobic_training_effect"),
+        "anaerobic_training_effect": first_value(record, "anaerobicTrainingEffect", "anaerobic_training_effect"),
+    }
+    row = {
+        "activity_id": str(activity_id),
+        "start_time_local": start_time_text,
+        "activity_type": str(activity_type or "unknown"),
+    }
+    row.update(
+        {
+            key: format_number(optional_number(value, name=key))
+            for key, value in numeric_fields.items()
+        }
+    )
+    return {column: row.get(column, "") for column in ACTIVITY_COLUMNS}
+
+
+def read_activities(path: Path) -> dict[str, dict[str, str]]:
+    if not path.exists():
+        return {}
+    with path.open(newline="", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        if reader.fieldnames != list(ACTIVITY_COLUMNS):
+            raise RuntimeError(
+                f"{path} ma nieprawidłowy schemat: {reader.fieldnames}."
+            )
+        rows: dict[str, dict[str, str]] = {}
+        for row in reader:
+            activity_id = row["activity_id"]
+            if activity_id in rows:
+                raise RuntimeError(f"{path} zawiera duplikat activity_id={activity_id}.")
+            rows[activity_id] = row
+        return rows
+
+
+def merge_activities(
+    existing: dict[str, dict[str, str]], records: list[dict[str, Any]]
+) -> int:
+    changed = 0
+    for record in records:
+        row = normalise_activity(record)
+        activity_id = row["activity_id"]
+        previous = existing.get(activity_id)
+        if previous is not None:
+            for column in ACTIVITY_COLUMNS:
+                if row[column] in ("", "unknown") and previous.get(column):
+                    row[column] = previous[column]
+        if previous != row:
+            existing[activity_id] = row
+            changed += 1
+    return changed
+
+
+def atomic_write_csv(
+    path: Path, columns: tuple[str, ...], rows: list[dict[str, str]]
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with NamedTemporaryFile(
+        "w", newline="", encoding="utf-8", dir=path.parent, delete=False
+    ) as temporary:
+        writer = csv.DictWriter(temporary, fieldnames=columns, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+        temporary_path = Path(temporary.name)
+    temporary_path.replace(path)
+
+
+def write_activities(path: Path, rows: dict[str, dict[str, str]]) -> None:
+    ordered = sorted(
+        rows.values(), key=lambda row: (row["start_time_local"], row["activity_id"])
+    )
+    atomic_write_csv(path, ACTIVITY_COLUMNS, ordered)
+
+
+def load_bootstrap_records(directory: Path) -> list[dict[str, Any]]:
+    summary_path = directory / "activities_summary.json"
+    metadata_directory = directory / "metadata"
+    with summary_path.open(encoding="utf-8") as file:
+        summary = json.load(file)
+    if not isinstance(summary, list):
+        raise RuntimeError(f"{summary_path} nie zawiera listy aktywności.")
+
+    records: list[dict[str, Any]] = []
+    for item in summary:
+        if not isinstance(item, dict):
+            continue
+        merged = dict(item)
+        activity_id = item.get("activityId")
+        metadata_path = metadata_directory / f"{activity_id}.json"
+        if metadata_path.is_file():
+            with metadata_path.open(encoding="utf-8") as file:
+                metadata = json.load(file)
+            if isinstance(metadata, dict):
+                merged.update(metadata)
+        records.append(merged)
+    return records
+
+
+def bootstrap_activities(source: Path, target: Path, dry_run: bool) -> tuple[int, int]:
+    records = load_bootstrap_records(source)
+    activities = read_activities(target)
+    changed = merge_activities(activities, records)
+    if changed and not dry_run:
+        write_activities(target, activities)
+    return len(records), changed
+
+
 def parse_local_date(value: Any) -> tuple[date, datetime]:
-    """Normalizuje kilka znanych formatów znacznika czasu Garmin do Warszawy."""
     if isinstance(value, (int, float)) or (isinstance(value, str) and value.isdigit()):
         seconds = float(value)
         if seconds > 10_000_000_000:
             seconds /= 1000
         timestamp = datetime.fromtimestamp(seconds, tz=WARSAW)
         return timestamp.date(), timestamp
-
-    text = str(value).strip()
-    if len(text) >= 10 and text[4] == "-" and text[7] == "-":
-        local_day = date.fromisoformat(text[:10])
-        try:
-            timestamp = datetime.fromisoformat(text.replace("Z", "+00:00"))
-            if timestamp.tzinfo is None:
-                timestamp = timestamp.replace(tzinfo=WARSAW)
-            else:
-                timestamp = timestamp.astimezone(WARSAW)
-        except ValueError:
-            timestamp = datetime.combine(local_day, time.min, tzinfo=WARSAW)
-        return local_day, timestamp
-
-    raise ValueError(f"Nieznany format daty Garmin: {value!r}")
-
-
-def optional_number(value: Any, *, minimum: float, maximum: float, name: str) -> float | None:
-    if value in (None, ""):
-        return None
-    number = float(value)
-    if not minimum <= number <= maximum:
-        raise ValueError(f"Nieprawidłowa wartość {name}: {number}.")
-    return number
+    text = str(value)
+    local_day = date.fromisoformat(text[:10])
+    try:
+        timestamp = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=WARSAW)
+        else:
+            timestamp = timestamp.astimezone(WARSAW)
+    except ValueError:
+        timestamp = datetime.combine(local_day, time.min, tzinfo=WARSAW)
+    return local_day, timestamp
 
 
 def normalise_measurement(record: dict[str, Any]) -> dict[str, Any]:
@@ -187,7 +401,6 @@ def normalise_measurement(record: dict[str, Any]) -> dict[str, Any]:
     if date_source is None:
         raise ValueError("Pomiar Garmin nie zawiera daty.")
     measurement_date, timestamp = parse_local_date(date_source)
-
     raw_weight = first_value(record, "weight", "weightKg", "value")
     if raw_weight is None:
         raise ValueError(f"Pomiar Garmin z {measurement_date} nie zawiera wagi.")
@@ -195,15 +408,15 @@ def normalise_measurement(record: dict[str, Any]) -> dict[str, Any]:
     if weight > 300:
         weight /= 1000
     weight = optional_number(weight, minimum=40, maximum=250, name="wagi")
-    assert weight is not None
-
     body_fat = optional_number(
         first_value(record, "bodyFat", "bodyFatPercent", "percentFat"),
         minimum=2,
         maximum=70,
         name="tkanki tłuszczowej",
     )
-    bmi = optional_number(first_value(record, "bmi", "BMI"), minimum=12, maximum=60, name="BMI")
+    bmi = optional_number(
+        first_value(record, "bmi", "BMI"), minimum=12, maximum=60, name="BMI"
+    )
     return {
         "data": measurement_date.isoformat(),
         "timestamp": timestamp,
@@ -245,312 +458,106 @@ def extract_measurements(response: Any) -> list[dict[str, Any]]:
     return [by_date[key] for key in sorted(by_date)]
 
 
-def initialise_database(path: Path) -> sqlite3.Connection:
-    """Tworzy niewielką, przenośną bazę lokalną bez serwera."""
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    connection = sqlite3.connect(path)
-    connection.execute("PRAGMA foreign_keys = ON")
-    connection.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS synchronizacje (
-            nazwa TEXT PRIMARY KEY,
-            wartosc TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS pomiary_wagi (
-            data TEXT PRIMARY KEY,
-            zmierzono_o TEXT,
-            waga_kg REAL NOT NULL,
-            tkanka_tluszczowa_proc REAL,
-            bmi REAL,
-            zrodlo_json TEXT NOT NULL,
-            zsynchronizowano_o TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS aktywnosci (
-            activity_id INTEGER PRIMARY KEY,
-            nazwa TEXT,
-            typ TEXT,
-            rozpoczecie_lokalne TEXT,
-            czas_s REAL,
-            dystans_m REAL,
-            kalorie REAL,
-            srednia_predkosc_m_s REAL,
-            srednie_tempo_s_km REAL,
-            srednia_kadencja_rpm REAL,
-            srednie_tetno_bpm REAL,
-            maksymalne_tetno_bpm REAL,
-            przewyzszenie_m REAL,
-            podsumowanie_json TEXT NOT NULL,
-            szczegoly_json_plik TEXT NOT NULL,
-            zsynchronizowano_o TEXT NOT NULL
-        );
-        CREATE INDEX IF NOT EXISTS aktywnosci_rozpoczecie_idx
-            ON aktywnosci(rozpoczecie_lokalne);
-        """
-    )
-    return connection
-
-
-def json_text(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), default=str)
-
-
-def save_measurements_to_database(
-    connection: sqlite3.Connection, measurements: list[dict[str, Any]], synced_at: str
-) -> None:
-    for measurement in measurements:
-        connection.execute(
-            """
-            INSERT INTO pomiary_wagi (
-                data, zmierzono_o, waga_kg, tkanka_tluszczowa_proc, bmi, zrodlo_json,
-                zsynchronizowano_o
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(data) DO UPDATE SET
-                zmierzono_o = excluded.zmierzono_o,
-                waga_kg = excluded.waga_kg,
-                tkanka_tluszczowa_proc = excluded.tkanka_tluszczowa_proc,
-                bmi = excluded.bmi,
-                zrodlo_json = excluded.zrodlo_json,
-                zsynchronizowano_o = excluded.zsynchronizowano_o
-            """,
-            (
-                measurement["data"],
-                measurement["timestamp"].isoformat(),
-                measurement["waga_kg"],
-                measurement["tkanka_tluszczowa_proc"],
-                measurement["bmi"],
-                json_text(measurement),
-                synced_at,
-            ),
-        )
-
-
-def value_from(record: dict[str, Any], *keys: str) -> Any:
-    for key in keys:
-        value = record.get(key)
-        if value not in (None, ""):
-            return value
-    return None
-
-
-def normalise_activity(record: dict[str, Any]) -> dict[str, Any]:
-    activity_id = value_from(record, "activityId", "activity_id", "id")
-    if activity_id is None:
-        raise ValueError("Aktywność Garmin nie zawiera activityId.")
-    activity_type = value_from(record, "activityType")
-    if isinstance(activity_type, dict):
-        activity_type = value_from(activity_type, "typeKey", "typeId", "displayName")
-    speed = value_from(record, "averageSpeed", "avgSpeed")
-    speed_number = float(speed) if speed not in (None, "") else None
-    cadence = value_from(record, "averageRunningCadence", "averageBikeCadence", "averageCadence")
-    return {
-        "activity_id": int(activity_id),
-        "nazwa": value_from(record, "activityName", "name"),
-        "typ": str(activity_type) if activity_type is not None else None,
-        "rozpoczecie_lokalne": value_from(record, "startTimeLocal", "startTimeGMT"),
-        "czas_s": value_from(record, "duration", "movingDuration"),
-        "dystans_m": value_from(record, "distance"),
-        "kalorie": value_from(record, "calories", "activeKilocalories"),
-        "srednia_predkosc_m_s": speed_number,
-        "srednie_tempo_s_km": 1000 / speed_number if speed_number and speed_number > 0 else None,
-        "srednia_kadencja_rpm": cadence,
-        "srednie_tetno_bpm": value_from(record, "averageHR", "avgHR"),
-        "maksymalne_tetno_bpm": value_from(record, "maxHR"),
-        "przewyzszenie_m": value_from(record, "elevationGain", "elevationGainMeters"),
-    }
-
-
-def get_activities(client: Any, start: date, end: date) -> list[dict[str, Any]]:
-    """Pobiera aktywności z zakresu dat przez aktualny interfejs biblioteki."""
-    activities = client.get_activities_by_date(start.isoformat(), end.isoformat())
-    if not isinstance(activities, list):
-        raise RuntimeError("Odpowiedź Garmin nie zawiera listy aktywności.")
-    return [activity for activity in activities if isinstance(activity, dict)]
-
-
-def write_private_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    try:
-        os.fchmod(descriptor, 0o600)
-        file = os.fdopen(descriptor, "w", encoding="utf-8")
-    except Exception:
-        os.close(descriptor)
-        raise
-    with file:
-        json.dump(data, file, ensure_ascii=False, indent=2, default=str)
-
-
-def write_private_bytes(path: Path, data: bytes) -> None:
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    try:
-        os.fchmod(descriptor, 0o600)
-        file = os.fdopen(descriptor, "wb")
-    except Exception:
-        os.close(descriptor)
-        raise
-    with file:
-        file.write(data)
-
-
-def save_activities_to_database(
-    client: Any,
-    connection: sqlite3.Connection,
-    activities: list[dict[str, Any]],
-    raw_directory: Path,
-    original_directory: Path,
-    synced_at: str,
-) -> int:
-    saved = 0
-    for activity in activities:
-        normalised = normalise_activity(activity)
-        details = client.get_activity_details(normalised["activity_id"])
-        details_path = raw_directory / f"{normalised['activity_id']}.json"
-        write_private_json(details_path, {"podsumowanie": activity, "szczegoly": details})
-        original_path = original_directory / f"{normalised['activity_id']}.zip"
-        if not original_path.exists():
-            original = client.download_activity(
-                str(normalised["activity_id"]), client.ActivityDownloadFormat.ORIGINAL
-            )
-            write_private_bytes(original_path, original)
-        try:
-            details_path_for_database = str(details_path.relative_to(REPOSITORY_ROOT))
-        except ValueError:
-            details_path_for_database = str(details_path)
-        connection.execute(
-            """
-            INSERT INTO aktywnosci VALUES (
-                :activity_id, :nazwa, :typ, :rozpoczecie_lokalne, :czas_s, :dystans_m,
-                :kalorie, :srednia_predkosc_m_s, :srednie_tempo_s_km,
-                :srednia_kadencja_rpm, :srednie_tetno_bpm, :maksymalne_tetno_bpm,
-                :przewyzszenie_m, :podsumowanie_json, :szczegoly_json_plik,
-                :zsynchronizowano_o
-            ) ON CONFLICT(activity_id) DO UPDATE SET
-                nazwa=excluded.nazwa, typ=excluded.typ,
-                rozpoczecie_lokalne=excluded.rozpoczecie_lokalne, czas_s=excluded.czas_s,
-                dystans_m=excluded.dystans_m, kalorie=excluded.kalorie,
-                srednia_predkosc_m_s=excluded.srednia_predkosc_m_s,
-                srednie_tempo_s_km=excluded.srednie_tempo_s_km,
-                srednia_kadencja_rpm=excluded.srednia_kadencja_rpm,
-                srednie_tetno_bpm=excluded.srednie_tetno_bpm,
-                maksymalne_tetno_bpm=excluded.maksymalne_tetno_bpm,
-                przewyzszenie_m=excluded.przewyzszenie_m,
-                podsumowanie_json=excluded.podsumowanie_json,
-                szczegoly_json_plik=excluded.szczegoly_json_plik,
-                zsynchronizowano_o=excluded.zsynchronizowano_o
-            """,
-            {
-                **normalised,
-                "podsumowanie_json": json_text(activity),
-                "szczegoly_json_plik": details_path_for_database,
-                "zsynchronizowano_o": synced_at,
-            },
-        )
-        saved += 1
-    return saved
-
-
 def read_weight_rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     with path.open(newline="", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         if reader.fieldnames is None:
             raise RuntimeError("DATA/waga.csv nie zawiera nagłówka.")
-        headers = reader.fieldnames
-        missing_columns = set(REQUIRED_COLUMNS) - set(headers)
-        if missing_columns:
+        missing = set(WEIGHT_COLUMNS) - set(reader.fieldnames)
+        if missing:
             raise RuntimeError(
-                "DATA/waga.csv nie zawiera wymaganych kolumn: "
-                + ", ".join(sorted(missing_columns))
+                "DATA/waga.csv nie zawiera wymaganych kolumn: " + ", ".join(sorted(missing))
             )
-        return headers, list(reader)
+        return list(reader.fieldnames), list(reader)
 
 
-def format_number(value: float, decimals: int) -> str:
-    return f"{value:.{decimals}f}".rstrip("0").rstrip(".")
-
-
-def update_daily_rows(rows: list[dict[str, str]], headers: list[str], measurements: list[dict[str, Any]]) -> int:
+def update_daily_rows(
+    rows: list[dict[str, str]],
+    headers: list[str],
+    measurements: list[dict[str, Any]],
+) -> int:
     changed = 0
     for measurement in measurements:
-        matching_rows = [
+        matching = [
             row
             for row in rows
-            if row["typ_rekordu"] == "pomiar_dzienny" and row["data"] == measurement["data"]
+            if row.get("typ_rekordu") == "pomiar_dzienny"
+            and row.get("data") == measurement["data"]
         ]
-        if len(matching_rows) > 1:
+        if len(matching) > 1:
             raise RuntimeError(
                 f"DATA/waga.csv ma więcej niż jeden pomiar dzienny dla {measurement['data']}."
             )
-        row = matching_rows[0] if matching_rows else {header: "" for header in headers}
-        if not matching_rows:
+        if matching:
+            row = matching[0]
+        else:
+            row = {column: "" for column in headers}
             row.update({"data": measurement["data"], "typ_rekordu": "pomiar_dzienny"})
             rows.append(row)
-
         updated = {
-            "waga_kg": format_number(measurement["waga_kg"], 2),
+            "waga_kg": format_fixed(measurement["waga_kg"], 1),
             "typ_rekordu": "pomiar_dzienny",
             "okres_od": "",
             "okres_do": "",
         }
         if measurement["tkanka_tluszczowa_proc"] is not None:
-            updated["tkanka_tluszczowa_proc"] = format_number(
+            updated["tkanka_tluszczowa_proc"] = format_fixed(
                 measurement["tkanka_tluszczowa_proc"], 1
             )
         if measurement["bmi"] is not None:
-            updated["bmi"] = format_number(measurement["bmi"], 1)
-
+            updated["bmi"] = format_fixed(measurement["bmi"], 1)
         if any(row.get(key, "") != value for key, value in updated.items()):
             row.update(updated)
             changed += 1
     return changed
 
 
-def update_last_completed_week(rows: list[dict[str, str]], headers: list[str], today: date) -> int:
+def update_last_completed_week(
+    rows: list[dict[str, str]], headers: list[str], today: date
+) -> int:
     week_end = today - timedelta(days=(today.weekday() - 5) % 7)
     week_start = week_end - timedelta(days=6)
     daily_weights = [
         float(row["waga_kg"])
         for row in rows
-        if row["typ_rekordu"] == "pomiar_dzienny"
-        and week_start.isoformat() <= row["data"] <= week_end.isoformat()
-        and row["waga_kg"]
+        if row.get("typ_rekordu") == "pomiar_dzienny"
+        and week_start.isoformat() <= row.get("data", "") <= week_end.isoformat()
+        and row.get("waga_kg")
     ]
     if len(daily_weights) < 3:
         return 0
-
-    weekly_weight = round(mean(daily_weights), 1)
-    matching_rows = [
+    matching = [
         row
         for row in rows
-        if row["typ_rekordu"] == "srednia_tygodniowa"
-        and row["okres_od"] == week_start.isoformat()
-        and row["okres_do"] == week_end.isoformat()
+        if row.get("typ_rekordu") == "srednia_tygodniowa"
+        and row.get("okres_do") == week_end.isoformat()
     ]
-    if len(matching_rows) > 1:
+    if len(matching) > 1:
         raise RuntimeError(
             f"DATA/waga.csv ma więcej niż jedną średnią dla tygodnia do {week_end}."
         )
-    row = matching_rows[0] if matching_rows else {header: "" for header in headers}
-    previous_weights = [
-        float(candidate["waga_kg"])
-        for candidate in rows
-        if candidate["typ_rekordu"] == "srednia_tygodniowa"
-        and candidate["data"] < week_end.isoformat()
-        and candidate["waga_kg"]
+    previous = [
+        float(row["waga_kg"])
+        for row in rows
+        if row.get("typ_rekordu") == "srednia_tygodniowa"
+        and row.get("data", "") < week_end.isoformat()
+        and row.get("waga_kg")
     ]
+    weekly_weight = round(mean(daily_weights), 1)
     updated = {
         "data": week_end.isoformat(),
-        "waga_kg": format_number(weekly_weight, 1),
+        "waga_kg": format_fixed(weekly_weight, 1),
+        "tkanka_tluszczowa_proc": "",
+        "bmi": "",
         "typ_rekordu": "srednia_tygodniowa",
         "okres_od": week_start.isoformat(),
         "okres_do": week_end.isoformat(),
-        "zmiana_kg": (
-            format_number(round(weekly_weight - previous_weights[-1], 1), 1)
-            if previous_weights
-            else ""
-        ),
+        "zmiana_kg": format_fixed(weekly_weight - previous[-1], 1) if previous else "",
     }
-    if not matching_rows:
+    if matching:
+        row = matching[0]
+    else:
+        row = {column: "" for column in headers}
         rows.append(row)
     if any(row.get(key, "") != value for key, value in updated.items()):
         row.update(updated)
@@ -558,73 +565,95 @@ def update_last_completed_week(rows: list[dict[str, str]], headers: list[str], t
     return 0
 
 
-def write_weight_rows(path: Path, headers: list[str], rows: list[dict[str, str]]) -> None:
-    with NamedTemporaryFile("w", newline="", encoding="utf-8", dir=path.parent, delete=False) as file:
-        writer = csv.DictWriter(file, fieldnames=headers, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
-        temporary_path = Path(file.name)
-    temporary_path.replace(path)
+def write_weight_rows(
+    path: Path, headers: list[str], rows: list[dict[str, str]]
+) -> None:
+    atomic_write_csv(path, tuple(headers), rows)
+
+
+def sync_activities(client: Any, days: int, path: Path, dry_run: bool) -> tuple[int, int]:
+    today = datetime.now(WARSAW).date()
+    start = today - timedelta(days=days - 1)
+    records = client.get_activities_by_date(start.isoformat(), today.isoformat())
+    if not isinstance(records, list):
+        raise RuntimeError("Odpowiedź Garmin nie zawiera listy aktywności.")
+    activities = read_activities(path)
+    changed = merge_activities(activities, [item for item in records if isinstance(item, dict)])
+    if changed and not dry_run:
+        write_activities(path, activities)
+    return len(records), changed
+
+
+def sync_weight(client: Any, days: int, path: Path, dry_run: bool) -> tuple[int, int, int]:
+    today = datetime.now(WARSAW).date()
+    response = client.get_weigh_ins(
+        (today - timedelta(days=days - 1)).isoformat(), today.isoformat()
+    )
+    measurements = extract_measurements(response)
+    headers, rows = read_weight_rows(path)
+    updated_daily = update_daily_rows(rows, headers, measurements)
+    updated_weekly = update_last_completed_week(rows, headers, today)
+    if updated_daily + updated_weekly and not dry_run:
+        write_weight_rows(path, headers, rows)
+    return len(measurements), updated_daily, updated_weekly
 
 
 def describe_error(error: Exception) -> str:
-    message = str(error)
-    if "429" in message or "rate limited" in message.lower():
-        return (
-            "Garmin chwilowo zablokował logowanie z tego adresu IP (HTTP 429). "
-            "Nie ponawiaj próby teraz; odczekaj co najmniej godzinę i uruchom ją tylko raz."
-        )
-    return message
+    text = str(error)
+    lowered = text.lower()
+    if "429" in lowered or "too many" in lowered or "rate limit" in lowered:
+        return f"Garmin ograniczył liczbę zapytań; odczekaj co najmniej godzinę. ({text})"
+    if "401" in lowered or "token is not active" in lowered:
+        return f"Token Garmin jest nieaktywny; wymagane jest ponowne logowanie. ({text})"
+    return text or error.__class__.__name__
 
 
 def main() -> int:
     arguments = parse_arguments()
     try:
-        client = connect_to_garmin(arguments.token_store, arguments.initialize_auth)
-        today = datetime.now(WARSAW).date()
-        response = client.get_weigh_ins(
-            (today - timedelta(days=arguments.days - 1)).isoformat(), today.isoformat()
-        )
-        measurements = extract_measurements(response)
-        headers, rows = read_weight_rows(arguments.weight_data)
-        updated_daily = update_daily_rows(rows, headers, measurements)
-        updated_weekly = update_last_completed_week(rows, headers, today)
-        synced_at = datetime.now(WARSAW).isoformat(timespec="seconds")
-        activities = get_activities(
-            client, today - timedelta(days=arguments.activity_days - 1), today
-        )
-        if updated_daily + updated_weekly and not arguments.dry_run:
-            write_weight_rows(arguments.weight_data, headers, rows)
-        if not arguments.dry_run:
-            connection = initialise_database(arguments.database)
-            try:
-                save_measurements_to_database(connection, measurements, synced_at)
-                saved_activities = save_activities_to_database(
+        with exclusive_lock(arguments.lock_file):
+            if arguments.mode == "bootstrap":
+                total, changed = bootstrap_activities(
+                    arguments.bootstrap_from.expanduser().resolve(),
+                    arguments.activities_data,
+                    arguments.dry_run,
+                )
+                print(
+                    f"Garmin bootstrap: odczytano {total} aktywności; "
+                    f"dodano lub zmieniono {changed}."
+                )
+                return 0
+
+            client = connect_to_garmin(arguments.token_store, arguments.initialize_auth)
+            if arguments.mode == "auth":
+                activities = client.get_activities(start=0, limit=1)
+                if not isinstance(activities, (list, dict)):
+                    raise RuntimeError("Garmin zwrócił nieoczekiwany wynik testu sesji.")
+                print("Garmin: sesja działa; token pozostaje wyłącznie lokalnie.")
+                return 0
+
+            if arguments.mode in ("activities", "all"):
+                total, changed = sync_activities(
                     client,
-                    connection,
-                    activities,
-                    arguments.raw_activity_directory,
-                    arguments.original_activity_directory,
-                    synced_at,
+                    arguments.activity_days,
+                    arguments.activities_data,
+                    arguments.dry_run,
                 )
-                connection.execute(
-                    """
-                    INSERT INTO synchronizacje(nazwa, wartosc) VALUES ('ostatnia_udana', ?)
-                    ON CONFLICT(nazwa) DO UPDATE SET wartosc=excluded.wartosc
-                    """,
-                    (synced_at,),
+                print(
+                    f"Garmin aktywności: sprawdzono {total}; "
+                    f"dodano lub zmieniono {changed}."
                 )
-                connection.commit()
-            finally:
-                connection.close()
-        else:
-            saved_activities = 0
-        print(
-            "Garmin: sprawdzono "
-            f"{len(measurements)} pomiarów; zmieniono {updated_daily} dziennych i "
-            f"{updated_weekly} tygodniowych rekordów; "
-            f"pobrano {len(activities)} aktywności, zapisano {saved_activities}."
-        )
+            if arguments.mode in ("weight", "all"):
+                total, updated_daily, updated_weekly = sync_weight(
+                    client, arguments.days, arguments.weight_data, arguments.dry_run
+                )
+                print(
+                    f"Garmin waga: sprawdzono {total} pomiarów; zmieniono "
+                    f"{updated_daily} dziennych i {updated_weekly} tygodniowych rekordów."
+                )
+    except AlreadyRunningError as error:
+        print(f"Garmin: pominięto uruchomienie, bo {error}.")
+        return 0
     except Exception as error:
         print(
             f"Synchronizacja Garmin nie została wykonana: {describe_error(error)}",

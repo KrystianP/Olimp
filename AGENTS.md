@@ -6,12 +6,17 @@ całe repozytorium, chyba że głębszy `AGENTS.md` stanowi inaczej.
 ## Zanim zaczniesz
 
 1. Przeczytaj ten plik.
-2. Przeczytaj `README.md` i `CHAT_COMMANDS.md`.
-3. Przy zdrowiu, relacjach, finansach osobistych, pasjach, rozwoju lub
+2. W lokalnej sesji na gałęzi `main` uruchom
+   `PROJECTS/forma_zycia/automatyzacja/odswiez-dane-z-github.command`.
+   Skrypt pobiera aktualne commity przez fast-forward i odmawia działania,
+   jeśli dane mają lokalne zmiany albo historia jest rozbieżna. Przy błędzie
+   nie wymuszaj scalenia; zgłoś, że dane mogą być nieaktualne.
+3. Przeczytaj `README.md` i `CHAT_COMMANDS.md`.
+4. Przy zdrowiu, relacjach, finansach osobistych, pasjach, rozwoju lub
    planowaniu przeczytaj odpowiednie pliki z `CORE/`.
-4. Przeczytaj `opis.md` i `status.md` właściwego projektu.
-5. Przeczytaj instrukcję odpowiedniego agenta lub skilla.
-6. Jeżeli odpowiedź zależy od zadań, pobierz aktualny stan z Todoist.
+5. Przeczytaj `opis.md` i `status.md` właściwego projektu.
+6. Przeczytaj instrukcję odpowiedniego agenta lub skilla.
+7. Jeżeli odpowiedź zależy od zadań, pobierz aktualny stan z Todoist.
 
 ## Zakres systemu
 
