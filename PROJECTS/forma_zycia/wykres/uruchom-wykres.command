@@ -3,7 +3,12 @@
 set -eu
 
 script_dir=${0:A:h}
-echo "Uruchamianie lokalnego podglądu na podstawie bieżącego DATA/waga.csv."
+repo_root=${script_dir:h:h:h}
+refresh_script="$repo_root/PROJECTS/forma_zycia/automatyzacja/odswiez-dane-z-github.command"
+
+echo "Odświeżanie danych wykresu z origin/main..."
+"$refresh_script"
+echo "Uruchamianie lokalnego podglądu na podstawie aktualnego DATA/waga.csv."
 
 server_log=$(mktemp -t forma-zycia-wykres.XXXXXX)
 python3 "$script_dir/serwer-wykresu.py" 0 >"$server_log" 2>&1 &
