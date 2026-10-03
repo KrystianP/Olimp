@@ -237,3 +237,5 @@ data,waga_kg,tkanka_tluszczowa_proc,bmi,typ_rekordu,okres_od,okres_do,zmiana_kg
 2026-09-30,98.1,,,pomiar_dzienny,,,0.4
 2026-10-01,96.9,,,pomiar_dzienny,,,-1.2
 2026-10-02,97.0,,,pomiar_dzienny,,,0.1
+2026-10-03,97.3,,,pomiar_dzienny,,,0.3
+2026-10-03,97.7,,,srednia_tygodniowa,2026-09-27,2026-10-03,-0.6
